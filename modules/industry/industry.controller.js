@@ -2,6 +2,7 @@ const industryModel = require("./industry.model");
 const authModel = require("../auth/auth.model");
 const { industryQuestions } = require("../../middlewares/validator");
 const postModel = require("./industryPost.model");
+const studentModel = require('../student/student.model');
 
 const companyQuestions = async (req, res) => {
   const { user, body } = req;
@@ -104,6 +105,21 @@ const editPost = async (req, res) => {
   });
 };
 
+const updateStatus = (req, res) => {
+  const { params, body } = req;
+  const filter = { _id: params.id };
+  const data = postModel.findOneAndUpdate(
+    filter,
+    { status: body.status },
+    { new: true }
+  );
+  return res.status(200).json({
+    status: true,
+    data: data,
+    message: "Status Updated successfully",
+  })
+};
+
 const postDelete = async (req, res) => {
   const { params } = req;
   const filter = { _id: params.id };
@@ -122,5 +138,19 @@ const postDelete = async (req, res) => {
   });
 };
 
+const updateStatusOfStudent = async (req, res) => {
+  const { params, body } = req;
+  const filter = { _id: params.id };
+  const data = await studentModel.findOneAndUpdate(
+    filter,
+    { applicationStatus: body.applicationStatus },
+    { new: true }
+  );
+  return res.status(200).json({
+    status: true,
+    data: data,
+    message: "Application Status Updated successfully",
+  })
+};
 
-module.exports = { companyQuestions, getAll, addPost, editPost, postDelete };
+module.exports = { companyQuestions, getAll, addPost, editPost, updateStatus, postDelete, updateStatusOfStudent };

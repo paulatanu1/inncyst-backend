@@ -117,6 +117,22 @@ const getMe = async (req, res) => {
   });
 };
 
+const editProfile = async (req, res) => {
+  const { user, body} = req;
+  const userData = await authModel.findOneAndUpdate(
+    { _id: user._id},
+    body,
+    { new: true },
+  );
+  if (userData) {
+    return res.status(200).json({
+      success: true,
+      message: "Profile update successfully",
+      data: userData
+    })
+  }
+}
+
 const uploadProfilePicture = async (req, res) => {
   const { user, body, files } = req;
   if (files && files.image) {
@@ -328,6 +344,7 @@ module.exports = {
   register,
   login,
   getMe,
+  editProfile,
   uploadProfilePicture,
   changePassword,
   verifyAccount,

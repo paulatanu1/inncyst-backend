@@ -34,6 +34,11 @@ const authSchema = Schema({
         minlength: 6,
         select: false,
       },
+      description: {
+        type: String,
+        default: null,
+        maxlength: 100
+      },
       verified: { type: Boolean, default: false },
       question_step: { type: Boolean, default: false },
       status: { type: Boolean, default: true },

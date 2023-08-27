@@ -1,17 +1,19 @@
 const student = require("../student/student.model");
+const intranship = require("../intranship/intranship.model");
+const industry = require("../industry/industryPost.model");
 const fs = require("fs");
 const { applyForIntranship } = require('../../middlewares/validator');
 
 const studentController = {
   applyIntranship: async (req, res) => {
     const { user, body, files } = req;
-    const { error } = applyForIntranship(body);
-    if (error) {
-        return res.status(400).json({
-            success: false,
-            message: error.message
-        })
-    }
+    // const { error } = applyForIntranship(body);
+    // if (error) {
+    //     return res.status(400).json({
+    //         success: false,
+    //         message: error.message
+    //     })
+    // }
     const check = await student.findOne({
       userId: user._id,
       intranshipId: body.intranshipId,
@@ -69,6 +71,70 @@ const studentController = {
     return res.status(200).json({
       success: true,
       data: saveData,
+      message: "success",
+    });
+  },
+
+  getAll: async (req, res) => {
+    const { user } = req;
+    let studentIntranshipData = await student.find({ status: true, userId: user._id }).lean();
+    studentIntranshipData = studentIntranshipData.map(async (student) => {
+      const intanshipDetails = await intranship.findOne({ _id: student.intranshipId });
+      if (intanshipDetails) {
+        return {
+          ...student,
+            intranshipDetails: intanshipDetails,
+        }
+      } else {
+          const industryDetailsdata = await industry.findOne({ _id: student.intranshipId });
+          if (industryDetailsdata) {
+            return {
+              ...student,
+              intranshipDetails: industryDetailsdata,
+            }
+          }
+      }
+  });
+  studentIntranshipData = await Promise.all(studentIntranshipData)
+    return res.status(200).json({
+      success: true,
+      data: studentIntranshipData,
+      message: "success",
+    });
+  },
+
+  getById: async (req, res) => {
+    const { user, params } = req;
+    if (!params) {
+      return res.status(404).json({
+        success: false,
+        data: null,
+        message: "No data found",
+      });
+    }
+    let studentIntranshipData = await student.findOne({
+      _id: params.id,
+      userId: user._id,
+    }).lean();
+    if (!studentIntranshipData) {
+      return res.status(404).json({
+        success: false,
+        data: null,
+        message: "No data found",
+      });
+    }
+    const intanshipDetails = await intranship.findOne({ _id: studentIntranshipData.intranshipId });
+    if (intanshipDetails) {
+      studentIntranshipData.intranshipDetails = intanshipDetails;
+    } else {
+      const industryDetailsdata = await industry.findOne({ _id: studentIntranshipData.intranshipId });
+      if (industryDetailsdata) {
+        studentIntranshipData.intranshipDetails = industryDetailsdata;
+      }
+    }
+    return res.status(200).json({
+      success: true,
+      data: studentIntranshipData,
       message: "success",
     });
   },
