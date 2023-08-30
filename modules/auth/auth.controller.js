@@ -201,6 +201,81 @@ const changePassword = async (req, res) => {
   }
 };
 
+const forgetPassword = async (req, res) => {
+  const { email } = req.body;
+  const user = await authModel.findOne({ email });
+  if (!user) {
+    return res.status(400).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+  sendOtpEmal(user);
+  return res.status(200).json({
+    success: true,
+    message: "Otp sent successfully",
+  });
+};
+
+const verifyEmailOtp = async (req, res) => {
+  const { body } = req;
+  const user = await authModel.findOne({email: body.email});
+  const otpData = await otpModel.findOne({ userId: user._id, emailOtp: body.otp });
+  if (otpData && otpData.emailOtp === body.otp) {
+    await otpModel.deleteMany({ userId: user._id });
+    return res.status(200).json({
+      success: true,
+      message: "Otp verified successfully",
+    });
+  } else {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid Otp, please try again",
+    });
+  }
+};
+
+const setNewPassword = async (req, res) => {
+  const { body } = req;
+  const newPassword = body.newPassword;
+  const password = body.password;
+  const hashPassword = bcrypt.hashSync(password, 10);
+  try {
+    const user = await authModel.findOne({ email: body.email});
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Something went wrong",
+      });
+    }
+    if (newPassword === password) {
+      await authModel.updateOne(
+        {
+          _id: user._id,
+        },
+        {
+          password: hashPassword,
+        }
+      );
+      return res.status(200).json({
+        success: true,
+        message: "Password changed successfully",
+      });
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "New password and Confirm password does\'t match",
+      });
+    }
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+  
+};
+
 const verifyAccount = async (req, res) => {
   const token = req.headers.authorization
     ? req.headers.authorization.split(" ")[1]
@@ -340,6 +415,33 @@ const sendOtp = async (user) => {
   }
 };
 
+const sendOtpEmal = async (user) => {
+  const otpEmail = generateOtp();
+  try {
+    const saveOtp = new otpModel({
+      userId: user._id,
+      emailOtp: otpEmail,
+      otpType: "resetpassword",
+    });
+    await saveOtp.save();
+    const mailOptions = {
+      subject: "ACCOUNT VERIFICATION",
+      email: user.email,
+      data: {
+        otp: saveOtp,
+      },
+      template: "templates/email-innov.ejs",
+    };
+    const nodeMailer = new NodeMailer(mailOptions);
+    await nodeMailer.sentMail();
+    const dd = await sendSMS();
+    console.log(dd, "-------");
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+}
+
 module.exports = {
   register,
   login,
@@ -347,6 +449,9 @@ module.exports = {
   editProfile,
   uploadProfilePicture,
   changePassword,
+  forgetPassword,
+  verifyEmailOtp,
+  setNewPassword,
   verifyAccount,
   resetEmailOtp,
   resetPhoneOtp,
