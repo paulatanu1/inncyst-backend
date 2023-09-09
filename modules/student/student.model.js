@@ -1,11 +1,11 @@
 const { Schema, model } = require('mongoose');
 
 const studentSchema = Schema({
-    intranshipId: { type: Schema.Types.ObjectId, required: true },
+    jobId: { type: Schema.Types.ObjectId, required: true },
     userId: { type: Schema.Types.ObjectId, ref: 'Auth' },
-    studentName: { type: String, required: true },
-    email: { type: String, required: true },
-    phone: { type: String, required: true },
+    studentName: { type: String },
+    email: { type: String },
+    phone: { type: String },
     resume: { type: String, required: true },
     availability: { type: Number, default: 1 },
     status: { type: Boolean, default: true },

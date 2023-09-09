@@ -2,25 +2,23 @@ const { Schema, model } = require("mongoose");
 
 const industrySchema = Schema({
   industryId: { type: Schema.Types.ObjectId, ref: "Auth" },
-  type: { type: String, enum: ["intranship", "job"], default: "intranship" },
-  details: { type: String, required: true },
+  type: { type: String, enum: ["intranship", "job"] },
+  details: { type: String },
   skills: [],
   intranshipType: {
     type: String,
-    enum: ["office", "hybrid", "remote"],
-    default: "office",
+    enum: ["office", "hybrid", "remote"]
   },
   startDate: { type: String },
-  duration: { type: String, required: true },
-  jobOpening: { type: Number, required: true },
+  duration: { type: String },
+  jobOpening: { type: Number },
   responsibilities: [],
   stipend: {
     type: String,
-    enum: ["fixed", "unpaid", "paid"],
-    default: "fixed",
+    enum: ["fixed", "unpaid", "paid"]
   },
-  salary: { type: Number, required: true },
-  salaryType: { type: String, enum: ["monthly", "yearly"], default: "monthly" },
+  salary: { type: Number },
+  salaryType: { type: String, enum: ["monthly", "yearly"] },
   perks: { type: String },
   status: { type: Boolean, default: false },
   createdAt: {

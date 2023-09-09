@@ -12,7 +12,8 @@ const VALIDATIONS = {
     REQUIRED: Joi.required(),
     STRING: Joi.string(),
     ANY: Joi.any(),
-    ARRAY: Joi.array().items(Joi.string())
+    ARRAY: Joi.array().items(Joi.string()),
+    ARRAY_REQUIRED: Joi.array().items(Joi.string()).min(1).required()
 }
 
 class Validator {
@@ -61,6 +62,26 @@ class Validator {
         const schema = Joi.object().keys({
             email: VALIDATIONS.EMAIL,
             phone: VALIDATIONS.PHONE_NUMBER
+        });
+        return schema.validate(params);
+    }
+
+    static industryPost(params) {
+        const schema = Joi.object().keys({
+            id: VALIDATIONS.REQUIRED,
+            type: VALIDATIONS.STRING_REQUIRED,
+            skills: VALIDATIONS.ARRAY_REQUIRED,
+            details: VALIDATIONS.STRING_REQUIRED,
+            intranshipType: VALIDATIONS.STRING_REQUIRED,
+            startDate: VALIDATIONS.STRING_REQUIRED,
+            duration: VALIDATIONS.STRING_REQUIRED,
+            jobOpening: VALIDATIONS.NUMBER_REQUIRED,
+            responsibilities: VALIDATIONS.ARRAY_REQUIRED,
+            stipend: VALIDATIONS.STRING_REQUIRED,
+            salary: VALIDATIONS.NUMBER_REQUIRED,
+            salaryType: VALIDATIONS.STRING_REQUIRED,
+            perks: VALIDATIONS.STRING_REQUIRED,
+            status: VALIDATIONS.BOOLEAN_REQUIRED
         });
         return schema.validate(params);
     }

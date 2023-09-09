@@ -1,6 +1,6 @@
 const industryModel = require("./industry.model");
 const authModel = require("../auth/auth.model");
-const { industryQuestions } = require("../../middlewares/validator");
+const { industryQuestions, industryPost } = require("../../middlewares/validator");
 const postModel = require("./industryPost.model");
 const studentModel = require('../student/student.model');
 
@@ -87,6 +87,34 @@ const addPost = async (req, res) => {
   }
 };
 
+const submitPost = async (req, res) => {
+  const { body } = req;
+  const { error } = industryPost(body);
+  if (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+  const savedPost = await postModel.findOneAndUpdate(
+    { _id: body.id },
+    body,
+    { new: true }
+  );
+  if (savedPost) {
+    return res.status(200).json({
+      success: true,
+      data: savedPost,
+      message: "Post updated successfully",
+    });
+  }
+  return res.status(400).json({
+    success: false,
+    data: {},
+    message: "Unable to submit post",
+  });
+}
+
 const editPost = async (req, res) => {
   const { params, body } = req;
   const filter = { _id: params.id };
@@ -153,4 +181,4 @@ const updateStatusOfStudent = async (req, res) => {
   })
 };
 
-module.exports = { companyQuestions, getAll, addPost, editPost, updateStatus, postDelete, updateStatusOfStudent };
+module.exports = { companyQuestions, getAll, addPost, submitPost, editPost, updateStatus, postDelete, updateStatusOfStudent };

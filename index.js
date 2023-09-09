@@ -68,7 +68,7 @@ app.use((req, res, next) => {
 app.use("/api/auth", authRouter);
 app.use("/api/industry", industryRouter);
 app.use("/api/manufacturer", manufacturerRouter);
-app.use("/api/intranship", intranshipRouter);
+app.use("/api/job", intranshipRouter);
 app.use("/api/student/", studentRouter);
 
 app.use("/api/lab/inventory", inventory);

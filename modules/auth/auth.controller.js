@@ -7,10 +7,12 @@ const { generateOtp } = require("../../config/otp");
 const { sendSMS } = require("../../config/fast2sms");
 const { NodeMailer } = require("../../config/Mailer");
 const fs = require("fs");
+const path = require("path");
+const { response } = require("express");
 
 const register = async (req, res) => {
   const { role, name, email, phone, password } = req.body;
-  if (!name || !email || !password) {
+  if (!name || !email || !password || !phone) {
     return res.status(400).json({
       success: false,
       message: "Provide details for register",
@@ -134,41 +136,37 @@ const editProfile = async (req, res) => {
 }
 
 const uploadProfilePicture = async (req, res) => {
-  const { user, body, files } = req;
-  if (files && files.image) {
-    if (
-      files.image.mimetype === 'image/png' ||
-      files.image.mimetype === 'image/jpg' ||
-      files.image.mimetype === 'image/jpeg'
-    ) {
-      const dir = __dirname + "/../../public/user-images/";
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir);
-      }
-      const name =
-        Math.random().toString(36).substring(2, 50) +
-        "." +
-        files.image.name.split(".").pop();
-      const path = dir + name;
-      await files.image.mv(path);
-      const uploadData = await authModel.findByIdAndUpdate(
-        { _id: user._id },
-        { image: "/user-images/" + name },
-        { new: true }
-      );
-      return res.status(200).json({
-        success: true,
-        data: uploadData,
-        message: "image upload successfully",
-      });
-    } else {
-      return res.status(400).json({
-        success: false,
-        data: {},
-        message: "Invalid Image type!",
-      });
-    }
+  const { user, body } = req;
+  const imageData = body.image;
+  if (!imageData) {
+    return res.status(400).json({ message: 'Base64 string is required.' });
   }
+  // const mimeMatch = imageData.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,/);
+  //   const mimeType = mimeMatch[1];
+  //   console.log(mimeType !== 'image/jpeg');
+  //   if (mimeType !== 'image/jpeg') {
+  //     return res.status(400).json({
+  //       message: 'Invalid mime type'
+  //     })
+  //   }
+  const imageName = `IMG_${user._id}.jpg`;
+  const imagepath = __dirname + "/../../public/user-images/";
+    if (!fs.existsSync(imagepath)) {
+    fs.mkdirSync(imagepath);
+  }
+  const resultImage = imagepath + imageName;
+  const imageBuffer = Buffer.from(imageData.split(',')[1], 'base64');
+  fs.writeFileSync(path.join(resultImage), imageBuffer);
+  const uploadData = await authModel.findByIdAndUpdate(
+    { _id: user._id },
+    { image: "/user-images/" + imageName },
+    { new: true }
+  );
+  return res.status(200).json({
+    success: true,
+    data: uploadData,
+    message: "image upload successfully",
+  });
 };
 
 const changePassword = async (req, res) => {

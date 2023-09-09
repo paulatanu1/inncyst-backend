@@ -26,7 +26,7 @@ const studentController = {
       });
     }
     const studentModel = new student();
-    studentModel.intranshipId = body.intranshipId;
+    studentModel.jobId = body.jobId;
     studentModel.userId = user._id;
     studentModel.studentName = user.name;
     studentModel.email = body.email;
@@ -79,7 +79,7 @@ const studentController = {
     const { user } = req;
     let studentIntranshipData = await student.find({ status: true, userId: user._id }).lean();
     studentIntranshipData = studentIntranshipData.map(async (student) => {
-      const intanshipDetails = await intranship.findOne({ _id: student.intranshipId });
+      const intanshipDetails = await intranship.findOne({ _id: student.jobId });
       if (intanshipDetails) {
         return {
           ...student,
@@ -123,11 +123,11 @@ const studentController = {
         message: "No data found",
       });
     }
-    const intanshipDetails = await intranship.findOne({ _id: studentIntranshipData.intranshipId });
+    const intanshipDetails = await intranship.findOne({ _id: studentIntranshipData.jobId });
     if (intanshipDetails) {
       studentIntranshipData.intranshipDetails = intanshipDetails;
     } else {
-      const industryDetailsdata = await industry.findOne({ _id: studentIntranshipData.intranshipId });
+      const industryDetailsdata = await industry.findOne({ _id: studentIntranshipData.jobId });
       if (industryDetailsdata) {
         studentIntranshipData.intranshipDetails = industryDetailsdata;
       }
