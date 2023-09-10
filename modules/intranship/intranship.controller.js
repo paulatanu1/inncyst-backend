@@ -6,14 +6,27 @@ const intranshipController = {
   getAll: async (req, res) => {
     const { user, query, params } = req;
     const filter = {
-      industryId: user._id,
-      $or: [
-        { intranshipType: query.type },
-        { jobType: query.jobType },
-        { location: query.location },
-        { salary: { $lt: query.salary } },
-      ],
+      status: true
     };
+
+if (query) {
+  if (query.type) {
+    filter.intranshipType = query.type
+  }
+  if (query.jobType) {
+    filter.jobType = query.jobType
+  }
+  if (query.location) {
+    filter.location = query.location;
+  }
+  if (query.salary) {
+    filter.salary = { $lt: query.salary }
+  }
+}
+    if (user.type !== 'student') {
+      filter.industryId = user._id;
+    }
+    console.log(filter, "filter")
     const intranshipList = await intranshipModel.find(filter);
     return res.status(200).json({
       success: true,
@@ -63,7 +76,7 @@ const intranshipController = {
     const data = await saveData.save();
     return res.status(200).json({
       success: true,
-      message: "Saved intranship successfully",
+      message: "Saved a Job successfully",
       data: data,
     });
   },
@@ -101,7 +114,7 @@ const intranshipController = {
     if (!findData) {
       return res.status(400).json({
         success: false,
-        message: "Intranship not found",
+        message: "Job not found",
         data: {},
       });
     }
