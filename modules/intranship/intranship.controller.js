@@ -22,12 +22,17 @@ if (query) {
   if (query.salary) {
     filter.salary = { $lt: query.salary }
   }
+  if (query.sort && query.sort === 'asc') {
+    query.sort = { _id: 1 };
+  }
+  if (query.sort && query.sort === 'dsc') {
+    query.sort = { _id: -1 };
+  }
 }
-    if (user.type !== 'student') {
+    if (user.role !== 'student') {
       filter.industryId = user._id;
     }
-    console.log(filter, "filter")
-    const intranshipList = await intranshipModel.find(filter);
+    const intranshipList = await intranshipModel.find(filter).populate('industryId').sort(query.sort);
     return res.status(200).json({
       success: true,
       message: "",
