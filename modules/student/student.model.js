@@ -8,7 +8,7 @@ const studentSchema = Schema({
     phone: { type: String },
     resume: { type: String, required: true },
     availability: { type: Number, default: 1 },
-    status: { type: Boolean, default: true },
+    status: { type: Boolean, default: false },
     applicationStatus: { type: String, enum: ['pending', 'review', 'complete'], default: 'pending' },
     availability_message: { type: String, default: null }
 });

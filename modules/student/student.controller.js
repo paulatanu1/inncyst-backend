@@ -2,100 +2,103 @@ const student = require("../student/student.model");
 const intranship = require("../intranship/intranship.model");
 const industry = require("../industry/industryPost.model");
 const fs = require("fs");
-const { applyForIntranship } = require('../../middlewares/validator');
+const { applyForIntranship } = require("../../middlewares/validator");
+const path = require("path");
 
 const studentController = {
+  uploadResume: async (req, res) => {
+    const { user, body } = req;
+    const resumeData = body.resume;
+    if (!resumeData) {
+      return res.status(400).json({ message: "Base64 string is required." });
+    }
+    const mimeMatch = resumeData.match(
+      /^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,/
+    );
+    const mimeType = mimeMatch[1];
+    if (mimeType !== "application/pdf")
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid file format" });
+    const fileName = `${user._id}.pdf`;
+    const filepath = __dirname + "/../../public/user-resume/";
+    if (!fs.existsSync(filepath)) {
+      fs.mkdirSync(filepath);
+    }
+    const resultPdf = filepath + fileName;
+    const pdfBuffer = Buffer.from(resumeData.split(",")[1], "base64");
+    fs.writeFileSync(path.join(resultPdf), pdfBuffer);
+    const savedData = await student.create({
+      userId: user._id,
+      resume: `/user-resume/${fileName}`,
+      jobId: body.jobId,
+    });
+    return res.status(200).json({
+      success: true,
+      data: savedData,
+      message: "Successfully upload resume",
+    });
+  },
+
   applyIntranship: async (req, res) => {
-    const { user, body, files } = req;
-    // const { error } = applyForIntranship(body);
-    // if (error) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: error.message
-    //     })
-    // }
+    const { user, body } = req;
     const check = await student.findOne({
       userId: user._id,
-      intranshipId: body.intranshipId,
+      jobId: body.jobId,
     });
-    if (check) {
+    if (!check) {
       return res.status(400).json({
         success: false,
-        data: {},
-        message: "You have already applied for this programme.",
+        message: "Please upload a resume",
       });
     }
-    const studentModel = new student();
-    studentModel.jobId = body.jobId;
-    studentModel.userId = user._id;
-    studentModel.studentName = user.name;
-    studentModel.email = body.email;
-    studentModel.phone = body.phone;
-    studentModel.availability = body.availability;
+    if (check.status === true) {
+      return res.status(400).json({
+        success: false,
+        message: "Already applied for this job",
+      });
+    }
+    check.studentName = user.name;
+    check.email = body.email;
+    check.phone = body.phone;
+    check.status = true;
+    check.availability = body.availability;
     if (body.availability === 1) {
-      studentModel.availability_message = body.availability_message;
+      check.availability_message = body.availability_message;
     }
-    if (files && files.resume) {
-      if (files.resume.size > 5242880) {
-        return res.status(400).json({
-          success: false,
-          data: {},
-          message: "File too Big, please select a file less than 5mb",
-        });
-      }
-      if (
-        files.resume.mimetype === "application/pdf" ||
-        files.resume.mimetype === "application/PDF" ||
-        files.resume.mimetype === "application/doc" ||
-        files.resume.mimetype === "application/DOC" ||
-        files.resume.mimetype === "application/docx" ||
-        files.resume.mimetype === "application/DOCX"
-      ) {
-        const dir = __dirname + "/../../public/user-resume/";
-        if (!fs.existsSync(dir)) {
-          fs.mkdirSync(dir);
-        }
-        const name = user._id + "." + files.resume.name;
-        const path = dir + name;
-        await files.resume.mv(path);
-        studentModel.resume = "/user-resume/" + name;
-      } else {
-        return res.status(200).json({
-          success: false,
-          data: {},
-          message: "Invalid file type",
-        });
-      }
-    }
-    const saveData = await studentModel.save();
+    const saveData = await check.save();
     return res.status(200).json({
       success: true,
       data: saveData,
-      message: "success",
+      message: "Application applied successfully",
     });
   },
 
   getAll: async (req, res) => {
     const { user } = req;
-    let studentIntranshipData = await student.find({ status: true, userId: user._id }).lean();
+    let studentIntranshipData = await student
+      .find({ status: true, userId: user._id })
+      .lean();
     studentIntranshipData = studentIntranshipData.map(async (student) => {
       const intanshipDetails = await intranship.findOne({ _id: student.jobId });
       if (intanshipDetails) {
         return {
           ...student,
-            intranshipDetails: intanshipDetails,
-        }
+          intranshipDetails: intanshipDetails,
+        };
       } else {
-          const industryDetailsdata = await industry.findOne({ _id: student.intranshipId });
-          if (industryDetailsdata) {
-            return {
-              ...student,
-              intranshipDetails: industryDetailsdata,
-            }
-          }
+        const industryDetailsdata = await industry.findOne({
+          _id: student.intranshipId,
+        });
+        if (industryDetailsdata) {
+          return {
+            ...student,
+            intranshipDetails: industryDetailsdata,
+          };
+        }
       }
-  });
-  studentIntranshipData = await Promise.all(studentIntranshipData)
+    });
+    studentIntranshipData = await Promise.all(studentIntranshipData);
     return res.status(200).json({
       success: true,
       data: studentIntranshipData,
@@ -112,10 +115,12 @@ const studentController = {
         message: "No data found",
       });
     }
-    let studentIntranshipData = await student.findOne({
-      _id: params.id,
-      userId: user._id,
-    }).lean();
+    let studentIntranshipData = await student
+      .findOne({
+        _id: params.id,
+        userId: user._id,
+      })
+      .lean();
     if (!studentIntranshipData) {
       return res.status(404).json({
         success: false,
@@ -123,11 +128,15 @@ const studentController = {
         message: "No data found",
       });
     }
-    const intanshipDetails = await intranship.findOne({ _id: studentIntranshipData.jobId });
+    const intanshipDetails = await intranship.findOne({
+      _id: studentIntranshipData.jobId,
+    });
     if (intanshipDetails) {
       studentIntranshipData.intranshipDetails = intanshipDetails;
     } else {
-      const industryDetailsdata = await industry.findOne({ _id: studentIntranshipData.jobId });
+      const industryDetailsdata = await industry.findOne({
+        _id: studentIntranshipData.jobId,
+      });
       if (industryDetailsdata) {
         studentIntranshipData.intranshipDetails = industryDetailsdata;
       }
