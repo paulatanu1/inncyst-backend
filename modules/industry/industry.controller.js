@@ -45,12 +45,38 @@ const companyQuestions = async (req, res) => {
 };
 
 const getAll = async (req, res) => {
-    const { user } = req;
-  const posts = await postModel.find({ industryId: user._id });
+  const { user, query } = req;
+  const filter = {
+    industryId: user._id,
+  };
+  if (query) {
+    if (query.status) {
+      filter.status = query.status;
+    }
+    if (query.jobOpening) {
+      filter.jobOpening = {$lte: query.jobOpening};
+    }
+    if (query.stipend) {
+      filter.stipend = { $lte: query.stipend };
+    }
+    if (query.intranshipType) {
+      filter.intranshipType = query.intranshipType;
+    }
+    if (query.skills) {
+      filter.skills = { $in: query.skills };
+    }
+  }
+  const posts = await postModel.find(filter)
+  .limit(query.limit)
+  .skip(query.page * query.limit);
+  const total = await postModel.find(filter).countDocuments();
   return res.status(200).json({
     success: true,
-    data: posts,
-    message: "",
+    data: {
+      total: total,
+      items: posts
+    },
+    message: "Successfully get list of jobs",
   });
 };
 

@@ -20,23 +20,30 @@ if (query) {
     filter.location = query.location;
   }
   if (query.salary) {
-    filter.salary = { $lt: query.salary }
+    filter.salary = { $lte: query.salary }
   }
   if (query.sort && query.sort === 'asc') {
-    query.sort = { _id: 1 };
+    query.sort = { createdAt: 1 };
   }
   if (query.sort && query.sort === 'dsc') {
-    query.sort = { _id: -1 };
+    query.sort = { createdAt: -1 };
   }
 }
     if (user.role !== 'student') {
       filter.industryId = user._id;
     }
-    const intranshipList = await intranshipModel.find(filter).populate('industryId').sort(query.sort);
+    const intranshipList = await intranshipModel.find(filter).populate('industryId')
+    .sort(query.sort)
+    .limit(query.limit)
+    .skip(query.page * query.limit);
+    const total = await intranshipModel.find(filter).countDocuments();
     return res.status(200).json({
       success: true,
-      message: "",
-      data: intranshipList,
+      message: "Successfully get list of jobs",
+      data: {
+        total: total,
+        items: intranshipList
+      },
     });
   },
 
