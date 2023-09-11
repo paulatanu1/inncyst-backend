@@ -7,37 +7,48 @@ const path = require("path");
 
 const studentController = {
   uploadResume: async (req, res) => {
-    const { user, body } = req;
-    const resumeData = body.resume;
-    if (!resumeData) {
-      return res.status(400).json({ message: "Base64 string is required." });
+    const { user, body, files } = req;
+    if (files && files.resume) {
+      if (files.resume.size > 5242880) {
+        return res.status(400).json({
+          success: false,
+          data: {},
+          message: "File too Big, please select a file less than 5mb",
+        });
+      }
+      if (
+        files.resume.mimetype === "application/pdf" ||
+        files.resume.mimetype === "application/PDF" ||
+        files.resume.mimetype === "application/doc" ||
+        files.resume.mimetype === "application/DOC" ||
+        files.resume.mimetype === "application/docx" ||
+        files.resume.mimetype === "application/DOCX"
+      ) {
+        const dir = __dirname + "/../../public/user-resume/";
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir);
+        }
+        const name = user._id + "." + files.resume.name;
+        const path = dir + name;
+        await files.resume.mv(path);
+        const savedData = await student.create({
+          userId: user._id,
+          resume: `/user-resume/${name}`,
+          jobId: body.jobId,
+        });
+        return res.status(200).json({
+          success: true,
+          data: savedData,
+          message: "Successfully upload resume",
+        });
+      } else {
+        return res.status(200).json({
+          success: false,
+          data: {},
+          message: "Invalid file type",
+        });
+      }
     }
-    const mimeMatch = resumeData.match(
-      /^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,/
-    );
-    const mimeType = mimeMatch[1];
-    if (mimeType !== "application/pdf")
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid file format" });
-    const fileName = `${user._id}.pdf`;
-    const filepath = __dirname + "/../../public/user-resume/";
-    if (!fs.existsSync(filepath)) {
-      fs.mkdirSync(filepath);
-    }
-    const resultPdf = filepath + fileName;
-    const pdfBuffer = Buffer.from(resumeData.split(",")[1], "base64");
-    fs.writeFileSync(path.join(resultPdf), pdfBuffer);
-    const savedData = await student.create({
-      userId: user._id,
-      resume: `/user-resume/${fileName}`,
-      jobId: body.jobId,
-    });
-    return res.status(200).json({
-      success: true,
-      data: savedData,
-      message: "Successfully upload resume",
-    });
   },
 
   applyIntranship: async (req, res) => {

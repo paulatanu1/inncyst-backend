@@ -80,6 +80,25 @@ const getAll = async (req, res) => {
   });
 };
 
+const getById = async (req, res) => {
+  const { params } = req;
+  const result = await postModel.findOne({
+    _id: params.id
+  });
+  if (!result) {
+    return res.status(400).json({
+      success: false,
+      message: "no such job found",
+      data: null
+    })
+  }
+  return res.status(200).json({
+    success: true,
+    data: result,
+    message: "success",
+  });
+}
+
 const addPost = async (req, res) => {
   const { body, user } = req;
   const savedPost = new postModel({
@@ -207,4 +226,4 @@ const updateStatusOfStudent = async (req, res) => {
   })
 };
 
-module.exports = { companyQuestions, getAll, addPost, submitPost, editPost, updateStatus, postDelete, updateStatusOfStudent };
+module.exports = { companyQuestions, getAll, getById, addPost, submitPost, editPost, updateStatus, postDelete, updateStatusOfStudent };
