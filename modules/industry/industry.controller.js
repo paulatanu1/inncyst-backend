@@ -141,6 +141,13 @@ const submitPost = async (req, res) => {
       message: error.message,
     });
   }
+  const checkResult = await postModel.findOne({ _id: body.id });
+  if (checkResult.status === true) {
+    return res.status(200).json({
+      success: true,
+      message: "Already submitted"
+    });
+  }
   const savedPost = await postModel.findOneAndUpdate(
     { _id: body.id },
     body,

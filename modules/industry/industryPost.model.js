@@ -19,7 +19,7 @@ const industrySchema = Schema({
   },
   salary: { type: Number },
   salaryType: { type: String, enum: ["monthly", "yearly"] },
-  perks: { type: String },
+  perks: [],
   status: { type: Boolean, default: false },
   createdAt: {
     type: Date,
