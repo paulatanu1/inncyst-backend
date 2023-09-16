@@ -46,6 +46,7 @@ class Validator {
     static intranshipRequest(params) {
         const schema = Joi.object().keys({
             companyName: VALIDATIONS.STRING_REQUIRED,
+            intranshipOverView: VALIDATIONS.STRING_REQUIRED,
             intranshipName: VALIDATIONS.STRING_REQUIRED,
             intranshipType: VALIDATIONS.STRING_REQUIRED,
             location: VALIDATIONS.STRING_REQUIRED,
@@ -53,7 +54,8 @@ class Validator {
             jobType: VALIDATIONS.STRING_REQUIRED,
             salary: VALIDATIONS.STRING_REQUIRED,
             information: VALIDATIONS.STRING_REQUIRED,
-            opens: VALIDATIONS.NUMBER_REQUIRED
+            opens: VALIDATIONS.NUMBER_REQUIRED,
+            perks: VALIDATIONS.ARRAY_REQUIRED,
         });
         return schema.validate(params);
     }

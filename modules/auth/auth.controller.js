@@ -62,6 +62,23 @@ const register = async (req, res) => {
   });
 };
 
+const profile = async (req, res) => {
+  const { params } = req;
+  const userprofile = await authModel.findOne({ _id: params.id });
+  if (!userprofile) {
+    return res.status(400).json({
+      success: false,
+      message: "User does not exist",
+      data: null,
+    });
+  }
+  return res.status(200).json({
+    success: true,
+    message: "Successfully get user profile",
+    data: userprofile
+  })
+};
+
 const login = async (req, res) => {
   const { email, password, role } = req.body;
   if (!(email && password)) {
@@ -442,6 +459,7 @@ const sendOtpEmal = async (user) => {
 
 module.exports = {
   register,
+  profile,
   login,
   getMe,
   editProfile,

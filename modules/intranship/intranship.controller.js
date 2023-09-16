@@ -76,6 +76,7 @@ if (query) {
     const saveData = new intranshipModel({
       industryId: user._id,
       companyName: body.companyName,
+      intranshipOverView: body.intranshipOverView,
       intranshipName: body.intranshipName,
       intranshipType: body.intranshipType,
       location: body.location,
@@ -84,6 +85,7 @@ if (query) {
       salary: body.salary,
       information: body.information,
       opens: body.opens,
+      perks: body.perks,
     });
     const data = await saveData.save();
     return res.status(200).json({
