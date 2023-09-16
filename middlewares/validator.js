@@ -13,7 +13,8 @@ const VALIDATIONS = {
     STRING: Joi.string(),
     ANY: Joi.any(),
     ARRAY: Joi.array().items(Joi.string()),
-    ARRAY_REQUIRED: Joi.array().items(Joi.string()).min(1).required()
+    ARRAY_REQUIRED: Joi.array().items(Joi.string()).min(1).required(),
+    DESCRIPTION: Joi.string().min(1).max(200).required(),
 }
 
 class Validator {
@@ -46,7 +47,7 @@ class Validator {
     static intranshipRequest(params) {
         const schema = Joi.object().keys({
             companyName: VALIDATIONS.STRING_REQUIRED,
-            intranshipOverView: VALIDATIONS.STRING_REQUIRED,
+            intranshipOverView: VALIDATIONS.DESCRIPTION,
             intranshipName: VALIDATIONS.STRING_REQUIRED,
             intranshipType: VALIDATIONS.STRING_REQUIRED,
             location: VALIDATIONS.STRING_REQUIRED,
