@@ -24,6 +24,7 @@
     "ejs": "^3.1.9",
     "express": "^4.17.3",
     "express-fileupload": "^1.4.0",
+    "file-type": "^18.5.0",
     "isomorphic-fetch": "^3.0.0",
     "joi": "^17.9.2",
     "jsonwebtoken": "^8.5.1",
@@ -35,6 +36,7 @@
     "nodemon": "^2.0.15",
     "object-encode": "^1.0.2",
     "object-hash": "^3.0.0",
+    "pdf-lib": "^1.17.1",
     "query-string": "^7.1.1",
     "randomstring": "^1.2.3",
     "twilio": "^3.77.3"

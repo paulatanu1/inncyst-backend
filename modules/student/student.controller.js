@@ -4,8 +4,36 @@ const industry = require("../industry/industryPost.model");
 const fs = require("fs");
 const { applyForIntranship } = require("../../middlewares/validator");
 const path = require("path");
+const { PDFDocument } = require('pdf-lib');
 
 const studentController = {
+  uploadResumeDemo: async (req, res) => {
+    const { body, user } = req;
+    const base64Data = body.resume;
+    if (!base64Data) {
+      return res.status(400).json({ error: "No base64 data provided" });
+    }
+    const filepath = __dirname + "/../../public/user-resume/";
+    if (!fs.existsSync(filepath)) {
+      fs.mkdirSync(filepath);
+    }
+    const fileName = `PDF_${user._id}.pdf`;
+    const resultfile = filepath + fileName;
+    // const fileBuffer = Buffer.from(base64Data.split(',')[1], 'base64');
+    const fileBuffer = Buffer.from(base64Data, 'base64');
+    fs.writeFileSync(path.join(resultfile), fileBuffer);
+    const savedData = await student.create({
+      userId: user._id,
+      resume: `/user-resume/${fileName}`,
+      jobId: body.jobId,
+    });
+    return res.status(200).json({
+      success: true,
+      data: savedData,
+      message: "Successfully upload resume",
+    });
+  },
+
   uploadResume: async (req, res) => {
     const { user, body, files } = req;
     if (files && files.resume) {

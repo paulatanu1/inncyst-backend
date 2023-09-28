@@ -19,8 +19,8 @@ if (query) {
   if (query.location) {
     filter.location = query.location;
   }
-  if (query.salary) {
-    filter.salary = { $lte: query.salary }
+  if (query.salaryFrom && query.salaryTo) {
+    filter.salary = { $lte: query.salaryTo, $gte: query.salaryFrom}
   }
   if (query.sort && query.sort === 'asc') {
     query.sort = { createdAt: 1 };

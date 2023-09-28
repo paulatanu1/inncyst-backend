@@ -9,14 +9,17 @@ const { NodeMailer } = require("../../config/Mailer");
 const fs = require("fs");
 const path = require("path");
 const { response } = require("express");
+const { registratonRequest, loginRequests } = require('../../middlewares/validator');
 
 const register = async (req, res) => {
   const { role, name, email, phone, password } = req.body;
-  if (!name || !email || !password || !phone) {
+  const { error } = registratonRequest(req.body);
+  if (error) {
     return res.status(400).json({
       success: false,
-      message: "Provide details for register",
-    });
+      message: error.message,
+      data: null
+    })
   }
   const userData = await authModel.findOne({ email, role });
   if (userData) {
@@ -33,9 +36,7 @@ const register = async (req, res) => {
     role: role,
   });
   const savedUser = await saveAuthData.save();
-
   sendOtp(savedUser);
-
   const verify_token = jwt.sign(
     { _id: savedUser._id, email: savedUser.email },
     process.env.JWT_SECRET,
@@ -43,7 +44,6 @@ const register = async (req, res) => {
       expiresIn: "2h",
     }
   );
-
   setTimeout(() => {
     otpModel
       .findOneAndUpdate(
@@ -53,7 +53,6 @@ const register = async (req, res) => {
       )
       .then((val) => console.log(val));
   }, 60000 * 5);
-
   return res.status(200).json({
     success: true,
     data: savedUser,
@@ -81,11 +80,13 @@ const profile = async (req, res) => {
 
 const login = async (req, res) => {
   const { email, password, role } = req.body;
-  if (!(email && password)) {
+  const { error } = loginRequests(req.body);
+  if (error) {
     return res.status(400).json({
       success: false,
-      message: "All inputs are required",
-    });
+      message: error.message,
+      data: null
+    })
   }
   const user = await authModel.findOne({ email, role }).select("+password");
   if (!user) {

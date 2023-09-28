@@ -18,6 +18,26 @@ const VALIDATIONS = {
 }
 
 class Validator {
+    static registratonRequest(params) {
+        const schema = Joi.object().keys({
+            name: VALIDATIONS.NAME,
+            role: VALIDATIONS.STRING_REQUIRED,
+            email: VALIDATIONS.EMAIL,
+            phone: VALIDATIONS.PHONE_NUMBER,
+            password: VALIDATIONS.PASSWORD
+        });
+        return schema.validate(params);
+    }
+
+    static loginRequests(params) {
+        const schema = Joi.object().keys({
+            email: VALIDATIONS.EMAIL,
+            password: VALIDATIONS.PASSWORD,
+            role: VALIDATIONS.STRING_REQUIRED
+        });
+        return schema.validate(params);
+    }
+
     static industryQuestions(params) {
         const schema = Joi.object().keys({
             industryId: VALIDATIONS.STRING_REQUIRED,
