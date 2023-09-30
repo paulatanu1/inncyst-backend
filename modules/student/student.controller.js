@@ -127,7 +127,7 @@ const studentController = {
         };
       } else {
         const industryDetailsdata = await industry.findOne({
-          _id: student.intranshipId,
+          _id: student.jobId,
         });
         if (industryDetailsdata) {
           return {
