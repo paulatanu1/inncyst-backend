@@ -1,8 +1,11 @@
 const industryModel = require("./industry.model");
 const authModel = require("../auth/auth.model");
-const { industryQuestions, industryPost } = require("../../middlewares/validator");
+const {
+  industryQuestions,
+  industryPost,
+} = require("../../middlewares/validator");
 const postModel = require("./industryPost.model");
-const studentModel = require('../student/student.model');
+const studentModel = require("../student/student.model");
 
 const companyQuestions = async (req, res) => {
   const { user, body } = req;
@@ -54,7 +57,7 @@ const getAll = async (req, res) => {
       filter.status = query.status;
     }
     if (query.jobOpening) {
-      filter.jobOpening = {$lte: query.jobOpening};
+      filter.jobOpening = { $lte: query.jobOpening };
     }
     if (query.stipend) {
       filter.stipend = { $lte: query.stipend };
@@ -66,15 +69,16 @@ const getAll = async (req, res) => {
       filter.skills = { $in: query.skills };
     }
   }
-  const posts = await postModel.find(filter)
-  .limit(query.limit)
-  .skip(query.page * query.limit);
+  const posts = await postModel
+    .find(filter)
+    .limit(query.limit)
+    .skip(query.page * query.limit);
   const total = await postModel.find(filter).countDocuments();
   return res.status(200).json({
     success: true,
     data: {
       total: total,
-      items: posts
+      items: posts,
     },
     message: "Successfully get list of jobs",
   });
@@ -83,25 +87,25 @@ const getAll = async (req, res) => {
 const getById = async (req, res) => {
   const { params } = req;
   const result = await postModel.findOne({
-    _id: params.id
+    _id: params.id,
   });
   if (!result) {
     return res.status(400).json({
       success: false,
       message: "no such job found",
-      data: null
-    })
+      data: null,
+    });
   }
   return res.status(200).json({
     success: true,
     data: result,
     message: "success",
   });
-}
+};
 
 const addPost = async (req, res) => {
   const { body, user } = req;
-  body.industryId = user._id
+  body.industryId = user._id;
   const savedPost = new postModel(body);
   const result = await savedPost.save();
   if (result) {
@@ -123,55 +127,56 @@ const submitPost = async (req, res) => {
   const { body } = req;
   try {
     body.status = true;
-  const { error } = industryPost(body);
-  if (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
-  }
-  if (!body.id) {
-    const checkResult = await postModel.findOne({ type: body.type, details: body.details });
-  if (checkResult && checkResult.status) {
-    return res.status(200).json({
-      success: true,
-      message: "Already submitted"
-    });
-  }
-    const savePostData = new postModel(body);
-    const resultData = await savePostData.save();
-    if (resultData) {
-      return res.status(200).json({
-        success: true,
-        data: resultData,
-        message: "Post submited successfully",
+    const { error } = industryPost(body);
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
       });
     }
-    return res.status(400).json({
-      success: false,
-      data: {},
-      message: "Unable to submit post",
+    if (!body.id) {
+      const checkResult = await postModel.findOne({
+        type: body.type,
+        details: body.details,
+      });
+      if (checkResult && checkResult.status) {
+        return res.status(200).json({
+          success: true,
+          message: "Already submitted",
+        });
+      }
+      const savePostData = new postModel(body);
+      const resultData = await savePostData.save();
+      if (resultData) {
+        return res.status(200).json({
+          success: true,
+          data: resultData,
+          message: "Post submited successfully",
+        });
+      }
+      return res.status(400).json({
+        success: false,
+        data: {},
+        message: "Unable to submit post",
+      });
+    }
+    const checkResult = await postModel.findOne({ _id: body.id });
+    if (checkResult && checkResult.status) {
+      return res.status(200).json({
+        success: true,
+        message: "Already submitted",
+      });
+    }
+    const savedPost = await postModel.findOneAndUpdate({ _id: body.id }, body, {
+      new: true,
     });
-  }
-  const checkResult = await postModel.findOne({ _id: body.id });
-  if (checkResult && checkResult.status) {
-    return res.status(200).json({
-      success: true,
-      message: "Already submitted"
-    });
-  }
-  const savedPost = await postModel.findOneAndUpdate(
-    { _id: body.id },
-    body,
-    { new: true }
-  );
-  if (savedPost) {
-    return res.status(200).json({
-      success: true,
-      data: savedPost,
-      message: "Post updated successfully",
-    });
-  }
+    if (savedPost) {
+      return res.status(200).json({
+        success: true,
+        data: savedPost,
+        message: "Post updated successfully",
+      });
+    }
   } catch (error) {
     console.log(error);
     return res.status(400).json({
@@ -180,8 +185,7 @@ const submitPost = async (req, res) => {
       message: "Unable to submit post",
     });
   }
-  
-}
+};
 
 const editPost = async (req, res) => {
   const { params, body } = req;
@@ -213,7 +217,7 @@ const updateStatus = (req, res) => {
     status: true,
     data: data,
     message: "Status Updated successfully",
-  })
+  });
 };
 
 const postDelete = async (req, res) => {
@@ -246,7 +250,17 @@ const updateStatusOfStudent = async (req, res) => {
     status: true,
     data: data,
     message: "Application Status Updated successfully",
-  })
+  });
 };
 
-module.exports = { companyQuestions, getAll, getById, addPost, submitPost, editPost, updateStatus, postDelete, updateStatusOfStudent };
+module.exports = {
+  companyQuestions,
+  getAll,
+  getById,
+  addPost,
+  submitPost,
+  editPost,
+  updateStatus,
+  postDelete,
+  updateStatusOfStudent,
+};
