@@ -91,7 +91,7 @@ class Validator {
 
     static industryPost(params) {
         const schema = Joi.object().keys({
-            id: VALIDATIONS.REQUIRED,
+            id: VALIDATIONS.STRING,
             type: VALIDATIONS.STRING_REQUIRED,
             skills: VALIDATIONS.ARRAY_REQUIRED,
             details: VALIDATIONS.STRING_REQUIRED,

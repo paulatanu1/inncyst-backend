@@ -101,21 +101,8 @@ const getById = async (req, res) => {
 
 const addPost = async (req, res) => {
   const { body, user } = req;
-  const savedPost = new postModel({
-    industryId: user._id,
-    type: body.type,
-    details: body.details,
-    skills: body.skills,
-    intranshipType: body.intranshipType,
-    startDate: body.startDate,
-    duration: body.duration,
-    jobOpening: body.jobOpening,
-    responsibilities: body.responsibilities,
-    stipend: body.stipend,
-    salary: body.salary,
-    salaryType: body.salaryType,
-    perks: body.perks,
-  });
+  body.industryId = user._id
+  const savedPost = new postModel(body);
   const result = await savedPost.save();
   if (result) {
     return res.status(200).json({
@@ -134,6 +121,8 @@ const addPost = async (req, res) => {
 
 const submitPost = async (req, res) => {
   const { body } = req;
+  try {
+    body.status = true;
   const { error } = industryPost(body);
   if (error) {
     return res.status(400).json({
@@ -141,8 +130,31 @@ const submitPost = async (req, res) => {
       message: error.message,
     });
   }
+  if (!body.id) {
+    const checkResult = await postModel.findOne({ type: body.type, details: body.details });
+  if (checkResult && checkResult.status) {
+    return res.status(200).json({
+      success: true,
+      message: "Already submitted"
+    });
+  }
+    const savePostData = new postModel(body);
+    const resultData = await savePostData.save();
+    if (resultData) {
+      return res.status(200).json({
+        success: true,
+        data: resultData,
+        message: "Post submited successfully",
+      });
+    }
+    return res.status(400).json({
+      success: false,
+      data: {},
+      message: "Unable to submit post",
+    });
+  }
   const checkResult = await postModel.findOne({ _id: body.id });
-  if (checkResult.status === true) {
+  if (checkResult && checkResult.status) {
     return res.status(200).json({
       success: true,
       message: "Already submitted"
@@ -160,11 +172,15 @@ const submitPost = async (req, res) => {
       message: "Post updated successfully",
     });
   }
-  return res.status(400).json({
-    success: false,
-    data: {},
-    message: "Unable to submit post",
-  });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({
+      success: false,
+      data: {},
+      message: "Unable to submit post",
+    });
+  }
+  
 }
 
 const editPost = async (req, res) => {
