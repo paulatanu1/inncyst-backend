@@ -458,6 +458,59 @@ const sendOtpEmal = async (user) => {
   }
 }
 
+const uploadPortfolio = async (req, res) => {
+  const { user, files, body } = req;
+  try {
+    if (files && files.portfolio) {
+      if (files.portfolio.size > 250000000) {
+        return res.status(400).json({
+          success: false,
+          data: {},
+          message: "File too Big, please select a file less than 5mb",
+        });
+      }
+      if (
+        files.portfolio.mimetype === "application/pdf" ||
+        files.portfolio.mimetype === "application/PDF" ||
+        files.portfolio.mimetype === "video/mp4" ||
+        files.portfolio.mimetype === "image/jpeg" ||
+        files.portfolio.mimetype === "image/jpg" ||
+        files.portfolio.mimetype === "image/png"
+      ) {
+        const dir = __dirname + "/../../public/user-portfolio/";
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir);
+        }
+        const name = user._id + "-" + files.portfolio.name;
+        const path = dir + name;
+        await files.portfolio.mv(path);
+        const savedData = await authModel.findOneAndUpdate(
+          { _id: user._id },
+          { portfolio: `/user-portfolio/${name}` },
+          { new: true }
+        )
+        return res.status(200).json({
+          success: true,
+          data: savedData,
+          message: "Successfully upload resume",
+        });
+      } else {
+        return res.status(200).json({
+          success: false,
+          data: {},
+          message: "Invalid file type",
+        });
+      }
+    }
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      data: {},
+      message: "Something wrong happened",
+    });
+  }
+}
+
 module.exports = {
   register,
   profile,
@@ -472,4 +525,5 @@ module.exports = {
   verifyAccount,
   resetEmailOtp,
   resetPhoneOtp,
+  uploadPortfolio
 };

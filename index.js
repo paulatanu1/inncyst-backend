@@ -32,6 +32,7 @@ const industryRouter = require("./modules/industry/industry.router");
 const manufacturerRouter = require('./modules/manufacturer/manufacturer.router');
 const intranshipRouter = require("./modules/intranship/intranship.router");
 const studentRouter = require("./modules/student/student.router");
+const contactRouter = require("./modules/common/contact/contact.router");
 
 connectDB();
 const app = express();
@@ -70,6 +71,7 @@ app.use("/api/industry", industryRouter);
 app.use("/api/manufacturer", manufacturerRouter);
 app.use("/api/job", intranshipRouter);
 app.use("/api/student/", studentRouter);
+app.use("/api/contact", contactRouter);
 
 app.use("/api/lab/inventory", inventory);
 app.use("/api/lab/billing", billing);

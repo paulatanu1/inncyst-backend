@@ -108,6 +108,16 @@ class Validator {
         });
         return schema.validate(params);
     }
+
+    static contactUs(params) {
+        const schema = Joi.object().keys({
+            firstName: VALIDATIONS.STRING_REQUIRED,
+            lastName: VALIDATIONS.STRING_REQUIRED,
+            email: VALIDATIONS.EMAIL,
+            message: VALIDATIONS.DESCRIPTION
+        });
+        return schema.validate(params);
+    }
 }
 
 module.exports = Validator;
