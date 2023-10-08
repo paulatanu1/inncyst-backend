@@ -8,6 +8,7 @@ const contactUsSchema = Schema({
     lowercase: true,
     require: [true, "email is required"],
   },
+  phone: { type: String, require: [true, "phone is required"] },
   message: {
     type: String,
     maxlength: 200,

@@ -114,6 +114,7 @@ class Validator {
             firstName: VALIDATIONS.STRING_REQUIRED,
             lastName: VALIDATIONS.STRING_REQUIRED,
             email: VALIDATIONS.EMAIL,
+            phone: VALIDATIONS.PHONE_NUMBER,
             message: VALIDATIONS.DESCRIPTION
         });
         return schema.validate(params);
