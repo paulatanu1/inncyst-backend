@@ -6,36 +6,63 @@ const intranshipController = {
   getAll: async (req, res) => {
     const { user, query, params } = req;
     const filter = {
-      industryId: user._id,
-      $or: [
-        { intranshipType: query.type },
-        { jobType: query.jobType },
-        { location: query.location },
-        { salary: { $lt: query.salary } },
-      ],
+      status: true,
     };
-    const intranshipList = await intranshipModel.find(filter);
+
+    if (query) {
+      if (query.type) {
+        filter.intranshipType = query.type;
+      }
+      if (query.jobType) {
+        filter.jobType = query.jobType;
+      }
+      if (query.location) {
+        filter.location = query.location;
+      }
+      if (query.salaryFrom && query.salaryTo) {
+        filter.salary = { $lte: query.salaryTo, $gte: query.salaryFrom };
+      }
+      if (query.sort && query.sort === "asc") {
+        query.sort = { createdAt: 1 };
+      }
+      if (query.sort && query.sort === "dsc") {
+        query.sort = { createdAt: -1 };
+      }
+    }
+    if (user.role !== "student") {
+      filter.industryId = user._id;
+    }
+    const intranshipList = await intranshipModel
+      .find(filter)
+      .populate("industryId")
+      .sort(query.sort)
+      .limit(query.limit)
+      .skip(query.page * query.limit);
+    const total = await intranshipModel.find(filter).countDocuments();
     return res.status(200).json({
       success: true,
-      message: "",
-      data: intranshipList,
+      message: "Successfully get list of jobs",
+      data: {
+        total: total,
+        items: intranshipList,
+      },
     });
   },
 
   getById: async (req, res) => {
     const { user, params } = req;
-    const getData = await intranshipModel.findOne({_id: params.id});
+    const getData = await intranshipModel.findOne({ _id: params.id });
     if (!getData) {
-        return res.status(400).json({
-            success: false,
-            data: {},
-            message: 'No data found'
-        });
+      return res.status(400).json({
+        success: false,
+        data: {},
+        message: "No data found",
+      });
     }
     return res.status(200).json({
-        success: true,
-        data: getData,
-        message: ''
+      success: true,
+      data: getData,
+      message: "",
     });
   },
 
@@ -51,6 +78,7 @@ const intranshipController = {
     const saveData = new intranshipModel({
       industryId: user._id,
       companyName: body.companyName,
+      intranshipOverView: body.intranshipOverView,
       intranshipName: body.intranshipName,
       intranshipType: body.intranshipType,
       location: body.location,
@@ -59,11 +87,12 @@ const intranshipController = {
       salary: body.salary,
       information: body.information,
       opens: body.opens,
+      perks: body.perks,
     });
     const data = await saveData.save();
     return res.status(200).json({
       success: true,
-      message: "Saved intranship successfully",
+      message: "Saved a Job successfully",
       data: data,
     });
   },
@@ -101,7 +130,7 @@ const intranshipController = {
     if (!findData) {
       return res.status(400).json({
         success: false,
-        message: "Intranship not found",
+        message: "Job not found",
         data: {},
       });
     }
@@ -109,6 +138,49 @@ const intranshipController = {
     return res.status(200).json({
       success: true,
       message: "Deleted successfully",
+    });
+  },
+
+  getAllIntranship: async (req, res) => {
+    const { query } = req;
+    const filter = {
+      status: true,
+    };
+
+    if (query) {
+      if (query.type) {
+        filter.intranshipType = query.type;
+      }
+      if (query.jobType) {
+        filter.jobType = query.jobType;
+      }
+      if (query.location) {
+        filter.location = query.location;
+      }
+      if (query.salaryFrom && query.salaryTo) {
+        filter.salary = { $lte: query.salaryTo, $gte: query.salaryFrom };
+      }
+      if (query.sort && query.sort === "asc") {
+        query.sort = { createdAt: 1 };
+      }
+      if (query.sort && query.sort === "dsc") {
+        query.sort = { createdAt: -1 };
+      }
+    }
+    const intranshipList = await intranshipModel
+      .find(filter)
+      .populate("industryId")
+      .sort(query.sort)
+      .limit(query.limit)
+      .skip(query.page * query.limit);
+    const total = await intranshipModel.find(filter).countDocuments();
+    return res.status(200).json({
+      success: true,
+      message: "Successfully get list of jobs",
+      data: {
+        total: total,
+        items: intranshipList,
+      },
     });
   },
 };

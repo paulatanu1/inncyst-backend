@@ -1,38 +1,41 @@
 const student = require("../student/student.model");
+const intranship = require("../intranship/intranship.model");
+const industry = require("../industry/industryPost.model");
 const fs = require("fs");
-const { applyForIntranship } = require('../../middlewares/validator');
+const { applyForIntranship } = require("../../middlewares/validator");
+const path = require("path");
+const { PDFDocument } = require('pdf-lib');
 
 const studentController = {
-  applyIntranship: async (req, res) => {
-    const { user, body, files } = req;
-    const { error } = applyForIntranship(body);
-    if (error) {
-        return res.status(400).json({
-            success: false,
-            message: error.message
-        })
+  uploadResumeDemo: async (req, res) => {
+    const { body, user } = req;
+    const base64Data = body.resume;
+    if (!base64Data) {
+      return res.status(400).json({ error: "No base64 data provided" });
     }
-    const check = await student.findOne({
+    const filepath = __dirname + "/../../public/user-resume/";
+    if (!fs.existsSync(filepath)) {
+      fs.mkdirSync(filepath);
+    }
+    const fileName = `PDF_${user._id}.pdf`;
+    const resultfile = filepath + fileName;
+    // const fileBuffer = Buffer.from(base64Data.split(',')[1], 'base64');
+    const fileBuffer = Buffer.from(base64Data, 'base64');
+    fs.writeFileSync(path.join(resultfile), fileBuffer);
+    const savedData = await student.create({
       userId: user._id,
-      intranshipId: body.intranshipId,
+      resume: `/user-resume/${fileName}`,
+      jobId: body.jobId,
     });
-    if (check) {
-      return res.status(400).json({
-        success: false,
-        data: {},
-        message: "You have already applied for this programme.",
-      });
-    }
-    const studentModel = new student();
-    studentModel.intranshipId = body.intranshipId;
-    studentModel.userId = user._id;
-    studentModel.studentName = user.name;
-    studentModel.email = body.email;
-    studentModel.phone = body.phone;
-    studentModel.availability = body.availability;
-    if (body.availability === 1) {
-      studentModel.availability_message = body.availability_message;
-    }
+    return res.status(200).json({
+      success: true,
+      data: savedData,
+      message: "Successfully upload resume",
+    });
+  },
+
+  uploadResume: async (req, res) => {
+    const { user, body, files } = req;
     if (files && files.resume) {
       if (files.resume.size > 5242880) {
         return res.status(400).json({
@@ -56,7 +59,16 @@ const studentController = {
         const name = user._id + "." + files.resume.name;
         const path = dir + name;
         await files.resume.mv(path);
-        studentModel.resume = "/user-resume/" + name;
+        const savedData = await student.create({
+          userId: user._id,
+          resume: `/user-resume/${name}`,
+          jobId: body.jobId,
+        });
+        return res.status(200).json({
+          success: true,
+          data: savedData,
+          message: "Successfully upload resume",
+        });
       } else {
         return res.status(200).json({
           success: false,
@@ -65,10 +77,112 @@ const studentController = {
         });
       }
     }
-    const saveData = await studentModel.save();
+  },
+
+  applyIntranship: async (req, res) => {
+    const { user, body } = req;
+    const check = await student.findOne({
+      userId: user._id,
+      jobId: body.jobId,
+    });
+    if (!check) {
+      return res.status(400).json({
+        success: false,
+        message: "Please upload a resume",
+      });
+    }
+    if (check.status === true) {
+      return res.status(400).json({
+        success: false,
+        message: "Already applied for this job",
+      });
+    }
+    check.studentName = user.name;
+    check.email = body.email;
+    check.phone = body.phone;
+    check.status = true;
+    check.availability = body.availability;
+    if (body.availability === 1) {
+      check.availability_message = body.availability_message;
+    }
+    const saveData = await check.save();
     return res.status(200).json({
       success: true,
       data: saveData,
+      message: "Application applied successfully",
+    });
+  },
+
+  getAll: async (req, res) => {
+    const { user } = req;
+    let studentIntranshipData = await student
+      .find({ status: true, userId: user._id })
+      .lean();
+    studentIntranshipData = studentIntranshipData.map(async (student) => {
+      const intanshipDetails = await intranship.findOne({ _id: student.jobId });
+      if (intanshipDetails) {
+        return {
+          ...student,
+          intranshipDetails: intanshipDetails,
+        };
+      } else {
+        const industryDetailsdata = await industry.findOne({
+          _id: student.jobId,
+        });
+        if (industryDetailsdata) {
+          return {
+            ...student,
+            intranshipDetails: industryDetailsdata,
+          };
+        }
+      }
+    });
+    studentIntranshipData = await Promise.all(studentIntranshipData);
+    return res.status(200).json({
+      success: true,
+      data: studentIntranshipData,
+      message: "success",
+    });
+  },
+
+  getById: async (req, res) => {
+    const { user, params } = req;
+    if (!params) {
+      return res.status(404).json({
+        success: false,
+        data: null,
+        message: "No data found",
+      });
+    }
+    let studentIntranshipData = await student
+      .findOne({
+        _id: params.id,
+        userId: user._id,
+      })
+      .lean();
+    if (!studentIntranshipData) {
+      return res.status(404).json({
+        success: false,
+        data: null,
+        message: "No data found",
+      });
+    }
+    const intanshipDetails = await intranship.findOne({
+      _id: studentIntranshipData.jobId,
+    });
+    if (intanshipDetails) {
+      studentIntranshipData.intranshipDetails = intanshipDetails;
+    } else {
+      const industryDetailsdata = await industry.findOne({
+        _id: studentIntranshipData.jobId,
+      });
+      if (industryDetailsdata) {
+        studentIntranshipData.intranshipDetails = industryDetailsdata;
+      }
+    }
+    return res.status(200).json({
+      success: true,
+      data: studentIntranshipData,
       message: "success",
     });
   },

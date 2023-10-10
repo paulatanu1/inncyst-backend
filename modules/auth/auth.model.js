@@ -34,8 +34,16 @@ const authSchema = Schema({
         minlength: 6,
         select: false,
       },
+      description: {
+        type: String,
+        default: null,
+        maxlength: 100
+      },
       verified: { type: Boolean, default: false },
-      question_step: { type: Boolean, default: false },
+      question_step: { type: Boolean, default: true },
+      location: { type: String, default: null, maxlength: 50 },
+      skills: [],
+      portfolio: { type: String, default: null },
       status: { type: Boolean, default: true },
       resetPasswordToken: String,
       resetPasswordExpire: Date,

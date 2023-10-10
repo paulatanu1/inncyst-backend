@@ -12,10 +12,32 @@ const VALIDATIONS = {
     REQUIRED: Joi.required(),
     STRING: Joi.string(),
     ANY: Joi.any(),
-    ARRAY: Joi.array().items(Joi.string())
+    ARRAY: Joi.array().items(Joi.string()),
+    ARRAY_REQUIRED: Joi.array().items(Joi.string()).min(1).required(),
+    DESCRIPTION: Joi.string().min(1).max(200).required(),
 }
 
 class Validator {
+    static registratonRequest(params) {
+        const schema = Joi.object().keys({
+            name: VALIDATIONS.NAME,
+            role: VALIDATIONS.STRING_REQUIRED,
+            email: VALIDATIONS.EMAIL,
+            phone: VALIDATIONS.PHONE_NUMBER,
+            password: VALIDATIONS.PASSWORD
+        });
+        return schema.validate(params);
+    }
+
+    static loginRequests(params) {
+        const schema = Joi.object().keys({
+            email: VALIDATIONS.EMAIL,
+            password: VALIDATIONS.PASSWORD,
+            role: VALIDATIONS.STRING_REQUIRED
+        });
+        return schema.validate(params);
+    }
+
     static industryQuestions(params) {
         const schema = Joi.object().keys({
             industryId: VALIDATIONS.STRING_REQUIRED,
@@ -45,6 +67,7 @@ class Validator {
     static intranshipRequest(params) {
         const schema = Joi.object().keys({
             companyName: VALIDATIONS.STRING_REQUIRED,
+            intranshipOverView: VALIDATIONS.DESCRIPTION,
             intranshipName: VALIDATIONS.STRING_REQUIRED,
             intranshipType: VALIDATIONS.STRING_REQUIRED,
             location: VALIDATIONS.STRING_REQUIRED,
@@ -52,7 +75,8 @@ class Validator {
             jobType: VALIDATIONS.STRING_REQUIRED,
             salary: VALIDATIONS.STRING_REQUIRED,
             information: VALIDATIONS.STRING_REQUIRED,
-            opens: VALIDATIONS.NUMBER_REQUIRED
+            opens: VALIDATIONS.NUMBER_REQUIRED,
+            perks: VALIDATIONS.ARRAY_REQUIRED,
         });
         return schema.validate(params);
     }
@@ -61,6 +85,37 @@ class Validator {
         const schema = Joi.object().keys({
             email: VALIDATIONS.EMAIL,
             phone: VALIDATIONS.PHONE_NUMBER
+        });
+        return schema.validate(params);
+    }
+
+    static industryPost(params) {
+        const schema = Joi.object().keys({
+            id: VALIDATIONS.STRING,
+            type: VALIDATIONS.STRING_REQUIRED,
+            skills: VALIDATIONS.ARRAY_REQUIRED,
+            details: VALIDATIONS.STRING_REQUIRED,
+            intranshipType: VALIDATIONS.STRING_REQUIRED,
+            startDate: VALIDATIONS.STRING_REQUIRED,
+            duration: VALIDATIONS.STRING_REQUIRED,
+            jobOpening: VALIDATIONS.NUMBER_REQUIRED,
+            responsibilities: VALIDATIONS.ARRAY_REQUIRED,
+            stipend: VALIDATIONS.STRING_REQUIRED,
+            salary: VALIDATIONS.NUMBER_REQUIRED,
+            salaryType: VALIDATIONS.STRING_REQUIRED,
+            perks: VALIDATIONS.ARRAY_REQUIRED,
+            status: VALIDATIONS.BOOLEAN_REQUIRED
+        });
+        return schema.validate(params);
+    }
+
+    static contactUs(params) {
+        const schema = Joi.object().keys({
+            firstName: VALIDATIONS.STRING_REQUIRED,
+            lastName: VALIDATIONS.STRING_REQUIRED,
+            email: VALIDATIONS.EMAIL,
+            phone: VALIDATIONS.PHONE_NUMBER,
+            message: VALIDATIONS.DESCRIPTION
         });
         return schema.validate(params);
     }
