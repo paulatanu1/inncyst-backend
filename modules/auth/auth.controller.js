@@ -9,7 +9,10 @@ const { NodeMailer } = require("../../config/Mailer");
 const fs = require("fs");
 const path = require("path");
 const { response } = require("express");
-const { registratonRequest, loginRequests } = require('../../middlewares/validator');
+const {
+  registratonRequest,
+  loginRequests,
+} = require("../../middlewares/validator");
 
 const register = async (req, res) => {
   const { role, name, email, phone, password } = req.body;
@@ -18,8 +21,8 @@ const register = async (req, res) => {
     return res.status(400).json({
       success: false,
       message: error.message,
-      data: null
-    })
+      data: null,
+    });
   }
   const userData = await authModel.findOne({ email, role });
   if (userData) {
@@ -74,8 +77,8 @@ const profile = async (req, res) => {
   return res.status(200).json({
     success: true,
     message: "Successfully get user profile",
-    data: userprofile
-  })
+    data: userprofile,
+  });
 };
 
 const login = async (req, res) => {
@@ -85,8 +88,8 @@ const login = async (req, res) => {
     return res.status(400).json({
       success: false,
       message: error.message,
-      data: null
-    })
+      data: null,
+    });
   }
   const user = await authModel.findOne({ email, role }).select("+password");
   if (!user) {
@@ -138,26 +141,24 @@ const getMe = async (req, res) => {
 };
 
 const editProfile = async (req, res) => {
-  const { user, body} = req;
-  const userData = await authModel.findOneAndUpdate(
-    { _id: user._id},
-    body,
-    { new: true },
-  );
+  const { user, body } = req;
+  const userData = await authModel.findOneAndUpdate({ _id: user._id }, body, {
+    new: true,
+  });
   if (userData) {
     return res.status(200).json({
       success: true,
       message: "Profile update successfully",
-      data: userData
-    })
+      data: userData,
+    });
   }
-}
+};
 
 const uploadProfilePicture = async (req, res) => {
   const { user, body } = req;
   const imageData = body.image;
   if (!imageData) {
-    return res.status(400).json({ message: 'Base64 string is required.' });
+    return res.status(400).json({ message: "Base64 string is required." });
   }
   // const mimeMatch = imageData.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,/);
   //   const mimeType = mimeMatch[1];
@@ -169,11 +170,11 @@ const uploadProfilePicture = async (req, res) => {
   //   }
   const imageName = `IMG_${user._id}.jpg`;
   const imagepath = __dirname + "/../../public/user-images/";
-    if (!fs.existsSync(imagepath)) {
+  if (!fs.existsSync(imagepath)) {
     fs.mkdirSync(imagepath);
   }
   const resultImage = imagepath + imageName;
-  const imageBuffer = Buffer.from(imageData.split(',')[1], 'base64');
+  const imageBuffer = Buffer.from(imageData.split(",")[1], "base64");
   fs.writeFileSync(path.join(resultImage), imageBuffer);
   const uploadData = await authModel.findByIdAndUpdate(
     { _id: user._id },
@@ -235,8 +236,11 @@ const forgetPassword = async (req, res) => {
 
 const verifyEmailOtp = async (req, res) => {
   const { body } = req;
-  const user = await authModel.findOne({email: body.email});
-  const otpData = await otpModel.findOne({ userId: user._id, emailOtp: body.otp });
+  const user = await authModel.findOne({ email: body.email });
+  const otpData = await otpModel.findOne({
+    userId: user._id,
+    emailOtp: body.otp,
+  });
   if (otpData && otpData.emailOtp === body.otp) {
     await otpModel.deleteMany({ userId: user._id });
     return res.status(200).json({
@@ -257,7 +261,7 @@ const setNewPassword = async (req, res) => {
   const password = body.password;
   const hashPassword = bcrypt.hashSync(password, 10);
   try {
-    const user = await authModel.findOne({ email: body.email});
+    const user = await authModel.findOne({ email: body.email });
     if (!user) {
       return res.status(400).json({
         success: false,
@@ -280,7 +284,7 @@ const setNewPassword = async (req, res) => {
     } else {
       return res.status(400).json({
         success: false,
-        message: "New password and Confirm password does\'t match",
+        message: "New password and Confirm password does't match",
       });
     }
   } catch (error) {
@@ -289,7 +293,6 @@ const setNewPassword = async (req, res) => {
       message: error.message,
     });
   }
-  
 };
 
 const verifyAccount = async (req, res) => {
@@ -402,7 +405,7 @@ const resetPhoneOtp = async (req, res) => {
 };
 
 const sendOtp = async (user) => {
-  const phone  = user.phone;
+  const phone = user.phone;
   const otpEmail = generateOtp();
   const otpPhone = generateOtp();
   try {
@@ -456,60 +459,93 @@ const sendOtpEmal = async (user) => {
     console.log(error);
     return error;
   }
-}
+};
 
 const uploadPortfolio = async (req, res) => {
   const { user, files, body } = req;
-  try {
-    if (files && files.portfolio) {
-      if (files.portfolio.size > 250000000) {
-        return res.status(400).json({
-          success: false,
-          data: {},
-          message: "File too Big, please select a file less than 5mb",
-        });
-      }
-      if (
-        files.portfolio.mimetype === "application/pdf" ||
-        files.portfolio.mimetype === "application/PDF" ||
-        files.portfolio.mimetype === "video/mp4" ||
-        files.portfolio.mimetype === "image/jpeg" ||
-        files.portfolio.mimetype === "image/jpg" ||
-        files.portfolio.mimetype === "image/png"
-      ) {
-        const dir = __dirname + "/../../public/user-portfolio/";
-        if (!fs.existsSync(dir)) {
-          fs.mkdirSync(dir);
-        }
-        const name = user._id + "-" + files.portfolio.name;
-        const path = dir + name;
-        await files.portfolio.mv(path);
-        const savedData = await authModel.findOneAndUpdate(
-          { _id: user._id },
-          { portfolio: `/user-portfolio/${name}` },
-          { new: true }
-        )
-        return res.status(200).json({
-          success: true,
-          data: savedData,
-          message: "Successfully upload resume",
-        });
-      } else {
-        return res.status(200).json({
-          success: false,
-          data: {},
-          message: "Invalid file type",
-        });
-      }
+  if (body.portfolioLink) {
+    try {
+      const savedData = await authModel.findOneAndUpdate(
+        { _id: user._id },
+        { portfolioLink: body.portfolioLink },
+        { new: true }
+      );
+      return res.status(200).json({
+        success: true,
+        message: 'Portfolio updated successfully',
+        data: savedData
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: 'Portfolio updated successfully',
+        data: null
+      });
     }
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      data: {},
-      message: "Something wrong happened",
-    });
   }
-}
+  let saveduser;
+  if (!files || Object.keys(files).length === 0) {
+    return res
+      .status(400)
+      .json({ success: false, data: {}, message: "No files were uploaded." });
+  }
+  const fileBuffer = Array.isArray(files.files) ? files.files : [files.files];
+  const dir = __dirname + "/../../public/user-portfolio/";
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+  let savedCount = 0;
+  let unsavedCount = 0;
+  for (let i of fileBuffer) {
+    if (i.size > 250000000) {
+      unsavedCount++;
+      return res.status(400).json({
+        success: false,
+        data: {},
+        message: `${unsavedCount} File too Big, please select a file less than 25mb`,
+      });
+    }
+    const allowedMimeTypes = [
+      "application/pdf",
+      "video/mp4",
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+    ];
+    if (allowedMimeTypes.includes(i.mimetype.toLowerCase())) {
+      const name = user._id + "-" + i.name;
+      const path = dir + name;
+      await i.mv(path);
+      try {
+        saveduser = await authModel.findOneAndUpdate(
+          { _id: user._id },
+          { $push: { portfolio: `/user-portfolio/${name}` } },
+          { new: true }
+        );
+        savedCount++;
+      } catch (error) {
+        unsavedCount++;
+        return res.status(500).json({
+          success: false,
+          data: {},
+          message: `Error while saving the files count of ${unsavedCount}.`,
+        });
+      }
+    } else {
+      unsavedCount++;
+      return res.status(200).json({
+        success: false,
+        data: saveduser,
+        message: `${unsavedCount} Invalid unsave file type, and saved count is ${savedCount}`,
+      });
+    }
+  }
+  res.status(200).json({
+    success: true,
+    data: saveduser,
+    message: `${savedCount} Files uploaded successfully`,
+  });
+};
 
 module.exports = {
   register,
@@ -525,5 +561,5 @@ module.exports = {
   verifyAccount,
   resetEmailOtp,
   resetPhoneOtp,
-  uploadPortfolio
+  uploadPortfolio,
 };
