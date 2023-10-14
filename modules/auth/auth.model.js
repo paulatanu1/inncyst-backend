@@ -43,8 +43,6 @@ const authSchema = Schema({
       question_step: { type: Boolean, default: true },
       location: { type: String, default: null, maxlength: 50 },
       skills: [],
-      portfolio: [String],
-      portfolioLink: { type: String, default: null },
       status: { type: Boolean, default: true },
       resetPasswordToken: String,
       resetPasswordExpire: Date,

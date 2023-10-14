@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const authModel = require("./auth.model");
+const portfolioModel = require("./portfolio.model");
 const otpModel = require("./otp.model");
 const { transporter } = require("../../config/email");
 const { generateOtp } = require("../../config/otp");
@@ -463,88 +464,107 @@ const sendOtpEmal = async (user) => {
 
 const uploadPortfolio = async (req, res) => {
   const { user, files, body } = req;
-  if (body.portfolioLink) {
-    try {
-      const savedData = await authModel.findOneAndUpdate(
-        { _id: user._id },
-        { portfolioLink: body.portfolioLink },
-        { new: true }
-      );
-      return res.status(200).json({
-        success: true,
-        message: 'Portfolio updated successfully',
-        data: savedData
-      });
-    } catch (error) {
-      return res.status(500).json({
-        success: false,
-        message: 'Portfolio updated successfully',
-        data: null
-      });
-    }
-  }
-  let saveduser;
-  if (!files || Object.keys(files).length === 0) {
-    return res
-      .status(400)
-      .json({ success: false, data: {}, message: "No files were uploaded." });
-  }
-  const fileBuffer = Array.isArray(files.files) ? files.files : [files.files];
   const dir = __dirname + "/../../public/user-portfolio/";
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
-  }
+  let portfolio;
+  let imageArray = [];
+  let videoArray = [];
   let savedCount = 0;
   let unsavedCount = 0;
-  for (let i of fileBuffer) {
-    if (i.size > 250000000) {
-      unsavedCount++;
-      return res.status(400).json({
-        success: false,
-        data: {},
-        message: `${unsavedCount} File too Big, please select a file less than 25mb`,
-      });
-    }
-    const allowedMimeTypes = [
-      "application/pdf",
-      "video/mp4",
-      "image/jpeg",
-      "image/jpg",
-      "image/png",
-    ];
-    if (allowedMimeTypes.includes(i.mimetype.toLowerCase())) {
-      const name = user._id + "-" + i.name;
-      const path = dir + name;
-      await i.mv(path);
+  let portfolioData = {
+    user: user._id,
+    title: body.title,
+    description: body.description,
+  };
+
+  if (body.url) {
+    const portfolioLink = Array.isArray(body.url) ? body.url : [body.url];
       try {
-        saveduser = await authModel.findOneAndUpdate(
-          { _id: user._id },
-          { $push: { portfolio: `/user-portfolio/${name}` } },
-          { new: true }
-        );
-        savedCount++;
+        const portfolioData = {
+          user: user._id,
+          title: body.title,
+          description: body.description,
+          url: portfolioLink
+        };
+        portfolio = await portfolioModel.create(portfolioData);
+        return res.status(200).json({
+          success: true,
+          data: portfolio,
+          message: "portfolio created successfully"
+        })
       } catch (error) {
-        unsavedCount++;
+        console.log(error, "error")
         return res.status(500).json({
           success: false,
           data: {},
-          message: `Error while saving the files count of ${unsavedCount}.`,
+          message: `Error while saving`,
         });
       }
+  }
+
+  if (!files || Object.keys(files).length === 0) {
+    return res.status(400).json({
+      success: false,
+      data: {},
+      message: "No files were uploaded.",
+    });
+  }
+
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+
+  const fileBuffer = Array.isArray(files.files) ? files.files : [files.files];
+  for (let i of fileBuffer) {
+    const { name, size, mimetype } = i;
+
+    if (size > 25000000) {
+      unsavedCount++;
+      continue;
+    }
+
+    if (mimetype === "application/pdf") {
+      const pdfName = user._id + "-" + name;
+      const pdfPath = dir + pdfName;
+      await i.mv(pdfPath);
+      portfolioData.pdf = "/user-portfolio/" + pdfName;
+    } else if (mimetype === "video/mp4") {
+      const videoName = user._id + "-" + name;
+      const videoPath = dir + videoName;
+      await i.mv(videoPath);
+      videoArray.push("/user-portfolio/" + videoName)
+    } else if (
+      mimetype === "image/jpeg" ||
+      mimetype === "image/jpg" ||
+      mimetype === "image/png"
+    ) {
+      const imageName = user._id + "-" + name;
+      const imagePath = dir + imageName;
+      await i.mv(imagePath);
+      imageArray.push("/user-portfolio/" + imageName)
     } else {
       unsavedCount++;
-      return res.status(200).json({
-        success: false,
-        data: saveduser,
-        message: `${unsavedCount} Invalid unsave file type, and saved count is ${savedCount}`,
-      });
+      continue;
     }
   }
-  res.status(200).json({
-    success: true,
-    data: saveduser,
-    message: `${savedCount} Files uploaded successfully`,
-  });
+
+  try {
+    portfolioData.image = imageArray;
+    portfolioData.video = videoArray;
+    portfolio = await portfolioModel.create(portfolioData);
+    savedCount = imageArray.length + videoArray.length;
+    return res.status(200).json({
+      success: true,
+      data: portfolio,
+      message: `${savedCount} Files uploaded successfully. ${unsavedCount} Files were not saved due to errors.`,
+    });
+  } catch (error) {
+    unsavedCount++;
+    return res.status(500).json({
+      success: false,
+      data: {},
+      message: `Error while saving the files count of ${unsavedCount}.`,
+    });
+  }
 };
 
 module.exports = {
