@@ -5,6 +5,7 @@ const fs = require("fs");
 const { applyForIntranship } = require("../../middlewares/validator");
 const path = require("path");
 const { PDFDocument } = require('pdf-lib');
+const portfolioModel = require('../auth/portfolio.model');
 
 const studentController = {
   uploadResumeDemo: async (req, res) => {

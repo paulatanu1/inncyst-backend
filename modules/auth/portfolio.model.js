@@ -8,6 +8,7 @@ const portfolioSchema = Schema({
   image: [String],
   video: [String],
   url: [String],
+  createdAt: { type: Date, default: Date.now, },
 });
 
 module.exports = model("portfolio", portfolioSchema);

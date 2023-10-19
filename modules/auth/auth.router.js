@@ -13,7 +13,9 @@ const {
   verifyAccount,
   resetEmailOtp,
   resetPhoneOtp,
-  uploadPortfolio
+  uploadPortfolio,
+  updatePortfolio,
+  portFolioData
 } = require("./auth.controller");
 const isLogged = require("../../middlewares/isLoggedIn.middleware");
 
@@ -30,6 +32,10 @@ router.put("/change-forget-password", setNewPassword);
 router.post("/verify", verifyAccount);
 router.put("/reset-email-otp", resetEmailOtp);
 router.put("/reset-phone-otp", resetPhoneOtp);
+
+// Portfolio
+router.get("/user/portfolio", isLogged, portFolioData);
 router.post("/user/portfolio", isLogged, uploadPortfolio);
+router.put("/user/portfolio", isLogged, updatePortfolio);
 
 module.exports = router;
