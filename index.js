@@ -87,7 +87,37 @@ app.use("/api/lab/lims/", testRequest);
 app.use("/api/lab/form", form);
 app.use("/api/lab/customer", customer);
 
-app.use(errorHandler);
+// app.use(errorHandler);
+
+/*
+|----------------------------------
+| Error Handling Here
+|----------------------------------
+*/
+app.use((err, req, res, next) => {
+  if (typeof (err) === 'string') {
+    // Custom application error
+    return res.status(400).json({ status: 400, message: err, success: false, data: null });
+  }
+
+  if (err.name === 'ValidationError') {
+    // Mongoose Validation error
+    return res.status(400).json({ status: 400, message: err.message, success: false, data: null });
+  }
+
+  if (err.name === 'UnauthorizedError') {
+    // Jwt Authentication  error
+    return res.status(401).json({ status: 401, message: "Invalid token", success: false, data: null });
+  }
+
+  if (err.name === 'CastError') {
+    // Cast error (data not found)
+    return res.status(400).json({ status: 400, message: "Data was not found", success: false, data: null });
+  }
+
+  // default to 500 server error
+  return res.status(500).json({ status: 500, message: err.message, success: false, data: null });
+})
 
 const server = app.listen(port, () =>
   console.log(`Server running at port ${port}`)

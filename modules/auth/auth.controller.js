@@ -464,6 +464,14 @@ const sendOtpEmal = async (user) => {
 
 const uploadPortfolio = async (req, res) => {
   const { user, files, body } = req;
+  const check = await portfolioModel.findOne({ user: user._id });
+  if (check) {
+    return res.status(400).json({
+      success: false,
+      data: {},
+      message: `You already have portfolio for ${check.title}`,
+    });
+  }
   const dir = __dirname + "/../../public/user-portfolio/";
   let portfolio;
   let imageArray = [];
@@ -492,7 +500,6 @@ const uploadPortfolio = async (req, res) => {
           message: "portfolio created successfully"
         })
       } catch (error) {
-        console.log(error, "error")
         return res.status(500).json({
           success: false,
           data: {},
@@ -574,25 +581,40 @@ const updatePortfolio = async (req, res) => {
     const portfolio = await portfolioModel.findOne({ user: user._id });
     let savedCount = 0;
     let unsavedCount = 0;
-    const portfolioLink = Array.isArray(body.url) ? body.url : portfolio.url;
     let portfolioData = {
       user: user._id,
       title: body.title,
       description: body.description,
-      url: portfolioLink,
     };
 
-    
-    const fileBuffer = Array.isArray(files.files) ? files.files : [files.files];
+    if (body && !files) {
+      const portfolioLink = Array.isArray(body.url) ? body.url : portfolio.url;
+      let portfolioData = {
+        user: user._id,
+        title: body.title,
+        description: body.description,
+        url: portfolioLink,
+      };
+      const portfolioResult = await portfolioModel.findOneAndUpdate(
+        { user: user._id },
+        portfolioData,
+        { new: true }
+      );
+      return res.status(200).json({
+        success: true,
+        data: portfolioResult,
+        message: "Success",
+      });
+    }
 
-    if (fileBuffer.length === 0) {
+    if (!files || Object.keys(files).length === 0) {
       return res.status(400).json({
         success: false,
         data: {},
-        message: "No files were provided for upload.",
+        message: "No files were uploaded.",
       });
     }
-    
+    const fileBuffer = Array.isArray(files.files) ? files.files : [files.files];
     portfolioData.image = portfolio.image || [];
     portfolioData.video = portfolio.video || [];
 
@@ -609,18 +631,19 @@ const updatePortfolio = async (req, res) => {
         const pdfPath = dir + pdfName;
         await i.mv(pdfPath);
         portfolioData.pdf = "/user-portfolio/" + pdfName;
+        savedCount++;
       } else if (mimetype === "video/mp4") {
         const videoName = user._id + "-" + name;
         const videoPath = dir + videoName;
         await i.mv(videoPath);
         portfolioData.video.push("/user-portfolio/" + videoName);
-      } else if (
-        ["image/jpeg", "image/jpg", "image/png"].includes(mimetype)
-      ) {
+        savedCount++;
+      } else if (["image/jpeg", "image/jpg", "image/png"].includes(mimetype)) {
         const imageName = user._id + "-" + name;
         const imagePath = dir + imageName;
         await i.mv(imagePath);
         portfolioData.image.push("/user-portfolio/" + imageName);
+        savedCount++;
       } else {
         unsavedCount++;
         continue;
@@ -632,8 +655,6 @@ const updatePortfolio = async (req, res) => {
       portfolioData,
       { new: true, upsert: true }
     );
-
-    savedCount = portfolioData.image.length + portfolioData.video.length;
 
     return res.status(200).json({
       success: true,
