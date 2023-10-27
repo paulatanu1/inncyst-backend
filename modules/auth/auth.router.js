@@ -36,6 +36,6 @@ router.put("/reset-phone-otp", resetPhoneOtp);
 // Portfolio
 router.get("/user/portfolio", isLogged, portFolioData);
 router.post("/user/portfolio", isLogged, uploadPortfolio);
-router.put("/user/portfolio", isLogged, updatePortfolio);
+router.put("/user/portfolio/:id", isLogged, updatePortfolio);
 
 module.exports = router;

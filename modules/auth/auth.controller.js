@@ -464,20 +464,8 @@ const sendOtpEmal = async (user) => {
 
 const uploadPortfolio = async (req, res) => {
   const { user, files, body } = req;
-  const check = await portfolioModel.findOne({ user: user._id });
-  if (check) {
-    return res.status(400).json({
-      success: false,
-      data: {},
-      message: `You already have portfolio for ${check.title}`,
-    });
-  }
   const dir = __dirname + "/../../public/user-portfolio/";
   let portfolio;
-  let imageArray = [];
-  let videoArray = [];
-  let savedCount = 0;
-  let unsavedCount = 0;
   let portfolioData = {
     user: user._id,
     title: body.title,
@@ -486,26 +474,26 @@ const uploadPortfolio = async (req, res) => {
 
   if (body.url) {
     const portfolioLink = Array.isArray(body.url) ? body.url : [body.url];
-      try {
-        const portfolioData = {
-          user: user._id,
-          title: body.title,
-          description: body.description,
-          url: portfolioLink
-        };
-        portfolio = await portfolioModel.create(portfolioData);
-        return res.status(200).json({
-          success: true,
-          data: portfolio,
-          message: "portfolio created successfully"
-        })
-      } catch (error) {
-        return res.status(500).json({
-          success: false,
-          data: {},
-          message: `Error while saving`,
-        });
-      }
+    try {
+      const portfolioData = {
+        user: user._id,
+        title: body.title,
+        description: body.description,
+        url: portfolioLink,
+      };
+      portfolio = await portfolioModel.create(portfolioData);
+      return res.status(200).json({
+        success: true,
+        data: portfolio,
+        message: "portfolio created successfully",
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        data: {},
+        message: `Error while saving`,
+      });
+    }
   }
 
   if (!files || Object.keys(files).length === 0) {
@@ -520,175 +508,191 @@ const uploadPortfolio = async (req, res) => {
     fs.mkdirSync(dir);
   }
 
-  const fileBuffer = Array.isArray(files.files) ? files.files : [files.files];
-  for (let i of fileBuffer) {
-    const { name, size, mimetype } = i;
+  const fileBuffer = files.files;
 
-    if (size > 25000000) {
-      unsavedCount++;
-      continue;
-    }
-
-    if (mimetype === "application/pdf") {
-      const pdfName = user._id + "-" + name;
-      const pdfPath = dir + pdfName;
-      await i.mv(pdfPath);
-      portfolioData.pdf = "/user-portfolio/" + pdfName;
-    } else if (mimetype === "video/mp4") {
-      const videoName = user._id + "-" + name;
-      const videoPath = dir + videoName;
-      await i.mv(videoPath);
-      videoArray.push("/user-portfolio/" + videoName)
-    } else if (
-      mimetype === "image/jpeg" ||
-      mimetype === "image/jpg" ||
-      mimetype === "image/png"
-    ) {
-      const imageName = user._id + "-" + name;
-      const imagePath = dir + imageName;
-      await i.mv(imagePath);
-      imageArray.push("/user-portfolio/" + imageName)
-    } else {
-      unsavedCount++;
-      continue;
-    }
-  }
-
-  try {
-    portfolioData.image = imageArray;
-    portfolioData.video = videoArray;
-    portfolio = await portfolioModel.create(portfolioData);
-    savedCount = imageArray.length + videoArray.length;
-    return res.status(200).json({
-      success: true,
-      data: portfolio,
-      message: `${savedCount} Files uploaded successfully. ${unsavedCount} Files were not saved due to errors.`,
-    });
-  } catch (error) {
-    unsavedCount++;
+  if (fileBuffer.size > 25000000) {
     return res.status(500).json({
       success: false,
       data: {},
-      message: `Error while saving the files count of ${unsavedCount}.`,
+      message: "file size is too high",
+    });
+  }
+
+  if (fileBuffer.mimetype === "application/pdf") {
+    const pdfName = user._id + "-" + fileBuffer.name;
+    const pdfPath = dir + pdfName;
+    await fileBuffer.mv(pdfPath);
+    portfolioData.pdf = "/user-portfolio/" + pdfName;
+  } else if (fileBuffer.mimetype === "video/mp4") {
+    const videoName = user._id + "-" + fileBuffer.name;
+    const videoPath = dir + videoName;
+    await fileBuffer.mv(videoPath);
+    portfolioData.video = "/user-portfolio/" + videoName;
+  } else if (
+    ["image/jpeg", "image/jpg", "image/png"].includes(fileBuffer.mimetype)
+  ) {
+    const imageName = user._id + "-" + fileBuffer.name;
+    const imagePath = dir + imageName;
+    await fileBuffer.mv(imagePath);
+    portfolioData.image = "/user-portfolio/" + imageName;
+  } else {
+    return res.status(500).json({
+      success: false,
+      data: {},
+      message: `Error while saving the files types.`,
+    });
+  }
+
+  try {
+    portfolio = await portfolioModel.create(portfolioData);
+    return res.status(200).json({
+      success: true,
+      data: portfolio,
+      message: `Portfolio uploaded successfully.`,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      data: {},
+      message: `Error while saving the Portfolio.`,
     });
   }
 };
 
 const updatePortfolio = async (req, res) => {
-  try {
-    const { user, files, body } = req;
-    const dir = __dirname + "/../../public/user-portfolio/";
-    const portfolio = await portfolioModel.findOne({ user: user._id });
-    let savedCount = 0;
-    let unsavedCount = 0;
+  const { user, files, body, params } = req;
+  const dir = __dirname + "/../../public/user-portfolio/";
+  const portfolio = await portfolioModel.findOne({ _id: params.id });
+  let portfolioData = {
+    user: user._id,
+    title: body.title,
+    description: body.description,
+  };
+
+  if (body && !files) {
+    const portfolioLink = Array.isArray(body.url) ? body.url : portfolio.url;
     let portfolioData = {
       user: user._id,
       title: body.title,
       description: body.description,
+      url: portfolioLink,
     };
-
-    if (body && !files) {
-      const portfolioLink = Array.isArray(body.url) ? body.url : portfolio.url;
-      let portfolioData = {
-        user: user._id,
-        title: body.title,
-        description: body.description,
-        url: portfolioLink,
-      };
-      const portfolioResult = await portfolioModel.findOneAndUpdate(
-        { user: user._id },
-        portfolioData,
-        { new: true }
-      );
-      return res.status(200).json({
-        success: true,
-        data: portfolioResult,
-        message: "Success",
-      });
-    }
-
-    if (!files || Object.keys(files).length === 0) {
-      return res.status(400).json({
-        success: false,
-        data: {},
-        message: "No files were uploaded.",
-      });
-    }
-    const fileBuffer = Array.isArray(files.files) ? files.files : [files.files];
-    portfolioData.image = portfolio.image || [];
-    portfolioData.video = portfolio.video || [];
-
-    for (let i of fileBuffer) {
-      const { name, size, mimetype } = i;
-
-      if (size > 25000000) {
-        unsavedCount++;
-        continue;
-      }
-
-      if (mimetype === "application/pdf") {
-        const pdfName = user._id + "-" + name;
-        const pdfPath = dir + pdfName;
-        await i.mv(pdfPath);
-        portfolioData.pdf = "/user-portfolio/" + pdfName;
-        savedCount++;
-      } else if (mimetype === "video/mp4") {
-        const videoName = user._id + "-" + name;
-        const videoPath = dir + videoName;
-        await i.mv(videoPath);
-        portfolioData.video.push("/user-portfolio/" + videoName);
-        savedCount++;
-      } else if (["image/jpeg", "image/jpg", "image/png"].includes(mimetype)) {
-        const imageName = user._id + "-" + name;
-        const imagePath = dir + imageName;
-        await i.mv(imagePath);
-        portfolioData.image.push("/user-portfolio/" + imageName);
-        savedCount++;
-      } else {
-        unsavedCount++;
-        continue;
-      }
-    }
-
     const portfolioResult = await portfolioModel.findOneAndUpdate(
-      { user: user._id },
+      { _id: params.id },
       portfolioData,
-      { new: true, upsert: true }
+      { new: true }
     );
-
     return res.status(200).json({
       success: true,
       data: portfolioResult,
-      message: `${savedCount} Files uploaded successfully. ${unsavedCount} Files were not saved due to errors.`,
+      message: "Success",
+    });
+  }
+
+  if (!files || Object.keys(files).length === 0) {
+    return res.status(400).json({
+      success: false,
+      data: {},
+      message: "No files were uploaded.",
+    });
+  }
+  const fileBuffer = files.files;
+
+  if (fileBuffer.size > 25000000) {
+    return res.status(500).json({
+      success: false,
+      data: {},
+      message: "file size is too high",
+    });
+  }
+
+  if (fileBuffer.mimetype === "application/pdf") {
+    const pdfName = user._id + "-" + fileBuffer.name;
+    const pdfPath = dir + pdfName;
+
+    // Delete any existing PDF file
+    if (portfolio.pdf) {
+      const existingPdfPath = dir + portfolio.pdf.split("/").pop();
+      fs.unlinkSync(existingPdfPath);
+    }
+
+    await fileBuffer.mv(pdfPath);
+    portfolioData.pdf = "/user-portfolio/" + pdfName;
+    portfolioData.image = null;
+    portfolioData.video = null;
+  } else if (fileBuffer.mimetype === "video/mp4") {
+    const videoName = user._id + "-" + fileBuffer.name;
+    const videoPath = dir + videoName;
+
+    // Delete any existing video file
+    if (portfolio.video) {
+      const existingVideoPath = dir + portfolio.video.split("/").pop();
+      fs.unlinkSync(existingVideoPath);
+    }
+
+    await fileBuffer.mv(videoPath);
+    portfolioData.video = "/user-portfolio/" + videoName;
+  } else if (
+    ["image/jpeg", "image/jpg", "image/png"].includes(fileBuffer.mimetype)
+  ) {
+    const imageName = user._id + "-" + fileBuffer.name;
+    const imagePath = dir + imageName;
+
+    // Delete any existing image file
+    if (portfolio.image) {
+      const existingImagePath = dir + portfolio.image.split("/").pop();
+      fs.unlinkSync(existingImagePath);
+    }
+
+    await fileBuffer.mv(imagePath);
+    portfolioData.image = "/user-portfolio/" + imageName;
+    portfolioData.pdf = null;
+    portfolioData.video = null;
+  } else {
+    return res.status(500).json({
+      success: false,
+      data: {},
+      message: `Error while saving the files types.`,
+    });
+  }
+
+  try {
+    const portfolioResult = await portfolioModel.findOneAndUpdate(
+      { _id: params.id },
+      portfolioData,
+      { new: true, upsert: true }
+    );
+    return res.status(200).json({
+      success: true,
+      data: portfolioResult,
+      message: `Portfolio update successfully.`,
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
       data: {},
-      message: `Error while saving the files. ${error.message}`,
+      message: `Error: ${error.message}`,
     });
   }
 };
 
 const portFolioData = async (req, res) => {
- const { user } = req;
- try {
-  const result = await portfolioModel.find({ user: user._id });
-  return res.status(200).json({
-    success: true,
-    data: result,
-    message: "Success",
-  });
- } catch (error) {
-  return res.status(500).json({
-    success: false,
-    data: {},
-    message: `Error while saving the files. ${error.message}`,
-  });
- }
-}
-
-
+  const { user } = req;
+  try {
+    const result = await portfolioModel.find({ user: user._id });
+    return res.status(200).json({
+      success: true,
+      data: result,
+      message: "Success",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      data: {},
+      message: `Error. ${error.message}`,
+    });
+  }
+};
 
 module.exports = {
   register,
@@ -706,5 +710,5 @@ module.exports = {
   resetPhoneOtp,
   uploadPortfolio,
   updatePortfolio,
-  portFolioData
+  portFolioData,
 };
