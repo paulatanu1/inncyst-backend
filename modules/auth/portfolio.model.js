@@ -7,7 +7,7 @@ const portfolioSchema = Schema({
   pdf: { type: String, default: null },
   image: { type: String, default: null },
   video: { type: String, default: null },
-  url: [String],
+  url: { type: String, default: null },
   createdAt: { type: Date, default: Date.now, },
 });
 

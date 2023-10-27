@@ -473,13 +473,12 @@ const uploadPortfolio = async (req, res) => {
   };
 
   if (body.url) {
-    const portfolioLink = Array.isArray(body.url) ? body.url : [body.url];
     try {
       const portfolioData = {
         user: user._id,
         title: body.title,
         description: body.description,
-        url: portfolioLink,
+        url: body.url,
       };
       portfolio = await portfolioModel.create(portfolioData);
       return res.status(200).json({
@@ -575,7 +574,7 @@ const updatePortfolio = async (req, res) => {
       user: user._id,
       title: body.title,
       description: body.description,
-      url: portfolioLink,
+      url: body.url,
     };
     const portfolioResult = await portfolioModel.findOneAndUpdate(
       { _id: params.id },
@@ -615,11 +614,8 @@ const updatePortfolio = async (req, res) => {
       const existingPdfPath = dir + portfolio.pdf.split("/").pop();
       fs.unlinkSync(existingPdfPath);
     }
-
     await fileBuffer.mv(pdfPath);
     portfolioData.pdf = "/user-portfolio/" + pdfName;
-    portfolioData.image = null;
-    portfolioData.video = null;
   } else if (fileBuffer.mimetype === "video/mp4") {
     const videoName = user._id + "-" + fileBuffer.name;
     const videoPath = dir + videoName;
@@ -629,7 +625,6 @@ const updatePortfolio = async (req, res) => {
       const existingVideoPath = dir + portfolio.video.split("/").pop();
       fs.unlinkSync(existingVideoPath);
     }
-
     await fileBuffer.mv(videoPath);
     portfolioData.video = "/user-portfolio/" + videoName;
   } else if (
@@ -643,11 +638,8 @@ const updatePortfolio = async (req, res) => {
       const existingImagePath = dir + portfolio.image.split("/").pop();
       fs.unlinkSync(existingImagePath);
     }
-
     await fileBuffer.mv(imagePath);
     portfolioData.image = "/user-portfolio/" + imageName;
-    portfolioData.pdf = null;
-    portfolioData.video = null;
   } else {
     return res.status(500).json({
       success: false,
