@@ -9,7 +9,7 @@ const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
 const morgan = require("morgan");
 const path = require('path');
-// const bodyParser = require('body-parser')
+const bodyParser = require('body-parser')
 // const users = require("./routes/user.router");
 
 const orgUser = require("./modules/organization/org-user/org-user.router");
