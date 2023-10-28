@@ -9,6 +9,7 @@ const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
 const morgan = require("morgan");
 const path = require('path');
+// const bodyParser = require('body-parser')
 // const users = require("./routes/user.router");
 
 const orgUser = require("./modules/organization/org-user/org-user.router");
@@ -37,6 +38,11 @@ const contactRouter = require("./modules/common/contact/contact.router");
 connectDB();
 const app = express();
 const port = process.env.PORT || 5500;
+
+
+
+app.use(bodyParser.json({ limit: "100mb" }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
 app.use(cors());
 app.use(fileUpload());
@@ -95,6 +101,8 @@ app.use("/api/lab/customer", customer);
 |----------------------------------
 */
 app.use((err, req, res, next) => {
+  console.log(err, "errerr")
+  
   if (typeof (err) === 'string') {
     // Custom application error
     return res.status(400).json({ status: 400, message: err, success: false, data: null });

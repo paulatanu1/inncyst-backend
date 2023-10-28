@@ -464,9 +464,7 @@ const sendOtpEmal = async (user) => {
 
 const uploadPortfolio = async (req, res) => {
   const { user, files, body } = req;
-
-  console.log(req, files, body, "----")
-  
+  console.log(body, "body");
   const dir = __dirname + "/../../public/user-portfolio/";
   let portfolio;
   let portfolioData = {
@@ -477,26 +475,6 @@ const uploadPortfolio = async (req, res) => {
 
   if (body.url) {
     portfolioData.url = body.url;
-    // try {
-    //   const portfolioData = {
-    //     user: user._id,
-    //     title: body.title,
-    //     description: body.description,
-    //     url: body.url,
-    //   };
-    //   portfolio = await portfolioModel.create(portfolioData);
-    //   return res.status(200).json({
-    //     success: true,
-    //     data: portfolio,
-    //     message: "portfolio created successfully",
-    //   });
-    // } catch (error) {
-    //   return res.status(500).json({
-    //     success: false,
-    //     data: {},
-    //     message: `Error while saving`,
-    //   });
-    // }
   }
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
@@ -553,10 +531,10 @@ const uploadPortfolio = async (req, res) => {
       message: `Portfolio uploaded successfully.`,
     });
   } catch (error) {
-    return res.status(500).json({
+    return res.status(400).json({
       success: false,
       data: {},
-      message: `Error while saving the Portfolio.`,
+      message: `Error while saving the Portfolio. ${error.message}`,
     });
   }
 };
