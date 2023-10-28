@@ -473,75 +473,75 @@ const uploadPortfolio = async (req, res) => {
   };
 
   if (body.url) {
-    try {
-      const portfolioData = {
-        user: user._id,
-        title: body.title,
-        description: body.description,
-        url: body.url,
-      };
-      portfolio = await portfolioModel.create(portfolioData);
-      return res.status(200).json({
-        success: true,
-        data: portfolio,
-        message: "portfolio created successfully",
-      });
-    } catch (error) {
-      return res.status(500).json({
-        success: false,
-        data: {},
-        message: `Error while saving`,
-      });
-    }
+    portfolioData.url = body.url;
+    // try {
+    //   const portfolioData = {
+    //     user: user._id,
+    //     title: body.title,
+    //     description: body.description,
+    //     url: body.url,
+    //   };
+    //   portfolio = await portfolioModel.create(portfolioData);
+    //   return res.status(200).json({
+    //     success: true,
+    //     data: portfolio,
+    //     message: "portfolio created successfully",
+    //   });
+    // } catch (error) {
+    //   return res.status(500).json({
+    //     success: false,
+    //     data: {},
+    //     message: `Error while saving`,
+    //   });
+    // }
   }
-
-  if (!files || Object.keys(files).length === 0) {
-    return res.status(400).json({
-      success: false,
-      data: {},
-      message: "No files were uploaded.",
-    });
-  }
-
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
   }
-
-  const fileBuffer = files.files;
-
-  if (fileBuffer.size > 25000000) {
-    return res.status(500).json({
-      success: false,
-      data: {},
-      message: "file size is too high",
-    });
+  if (files && files.pdf) {
+    const pdfFile = files.pdf;
+    if (pdfFile.size > 25000000) {
+      return res.status(500).json({
+        success: false,
+        data: {},
+        message: "file size is too high",
+      });
+    }
+    if (pdfFile.mimetype === "application/pdf") {
+      const pdfName = user._id + "-" + pdfFile.name;
+      const pdfPath = dir + pdfName;
+      await pdfFile.mv(pdfPath);
+      portfolioData.pdf = "/user-portfolio/" + pdfName;
+    } else {
+      return res.status(400).json({
+        success: false,
+        data: null,
+        message: "Invalid file type, please selece a PDF file",
+      });
+    }
   }
-
-  if (fileBuffer.mimetype === "application/pdf") {
-    const pdfName = user._id + "-" + fileBuffer.name;
-    const pdfPath = dir + pdfName;
-    await fileBuffer.mv(pdfPath);
-    portfolioData.pdf = "/user-portfolio/" + pdfName;
-  } else if (fileBuffer.mimetype === "video/mp4") {
-    const videoName = user._id + "-" + fileBuffer.name;
-    const videoPath = dir + videoName;
-    await fileBuffer.mv(videoPath);
-    portfolioData.video = "/user-portfolio/" + videoName;
-  } else if (
-    ["image/jpeg", "image/jpg", "image/png"].includes(fileBuffer.mimetype)
-  ) {
-    const imageName = user._id + "-" + fileBuffer.name;
-    const imagePath = dir + imageName;
-    await fileBuffer.mv(imagePath);
-    portfolioData.image = "/user-portfolio/" + imageName;
-  } else {
-    return res.status(500).json({
-      success: false,
-      data: {},
-      message: `Error while saving the files types.`,
-    });
+  if (files && files.image) {
+    const imageFile = files.image;
+    if (imageFile.size > 25000000) {
+      return res.status(500).json({
+        success: false,
+        data: {},
+        message: "file size is too high",
+      });
+    }
+    if (["image/jpeg", "image/jpg", "image/png"].includes(imageFile.mimetype)) {
+      const imageName = user._id + "-" + imageFile.name;
+      const imagePath = dir + imageName;
+      await imageFile.mv(imagePath);
+      portfolioData.image = "/user-portfolio/" + imageName;
+    } else {
+      return res.status(400).json({
+        success: false,
+        data: null,
+        message: "Invalid file type, please selece a Image",
+      });
+    }
   }
-
   try {
     portfolio = await portfolioModel.create(portfolioData);
     return res.status(200).json({
@@ -568,86 +568,64 @@ const updatePortfolio = async (req, res) => {
     description: body.description,
   };
 
-  if (body && !files) {
-    const portfolioLink = Array.isArray(body.url) ? body.url : portfolio.url;
-    let portfolioData = {
-      user: user._id,
-      title: body.title,
-      description: body.description,
-      url: body.url,
-    };
-    const portfolioResult = await portfolioModel.findOneAndUpdate(
-      { _id: params.id },
-      portfolioData,
-      { new: true }
-    );
-    return res.status(200).json({
-      success: true,
-      data: portfolioResult,
-      message: "Success",
-    });
+  if (body.url) {
+    portfolioData.url = body.url;
   }
 
-  if (!files || Object.keys(files).length === 0) {
-    return res.status(400).json({
-      success: false,
-      data: {},
-      message: "No files were uploaded.",
-    });
-  }
-  const fileBuffer = files.files;
-
-  if (fileBuffer.size > 25000000) {
-    return res.status(500).json({
-      success: false,
-      data: {},
-      message: "file size is too high",
-    });
-  }
-
-  if (fileBuffer.mimetype === "application/pdf") {
-    const pdfName = user._id + "-" + fileBuffer.name;
-    const pdfPath = dir + pdfName;
-
-    // Delete any existing PDF file
-    if (portfolio.pdf) {
-      const existingPdfPath = dir + portfolio.pdf.split("/").pop();
-      fs.unlinkSync(existingPdfPath);
+  if (files && files.pdf) {
+    const pdfFile = files.pdf;
+    if (pdfFile.size > 25000000) {
+      return res.status(500).json({
+        success: false,
+        data: {},
+        message: "file size is too high",
+      });
     }
-    await fileBuffer.mv(pdfPath);
-    portfolioData.pdf = "/user-portfolio/" + pdfName;
-  } else if (fileBuffer.mimetype === "video/mp4") {
-    const videoName = user._id + "-" + fileBuffer.name;
-    const videoPath = dir + videoName;
-
-    // Delete any existing video file
-    if (portfolio.video) {
-      const existingVideoPath = dir + portfolio.video.split("/").pop();
-      fs.unlinkSync(existingVideoPath);
+    if (pdfFile.mimetype === "application/pdf") {
+      const pdfName = user._id + "-" + pdfFile.name;
+      const pdfPath = dir + pdfName;
+      // Delete any existing PDF file
+      if (portfolio.pdf) {
+        const existingPdfPath = dir + portfolio.pdf.split("/").pop();
+        fs.unlinkSync(existingPdfPath);
+      }
+      await pdfFile.mv(pdfPath);
+      portfolioData.pdf = "/user-portfolio/" + pdfName;
+    } else {
+      return res.status(400).json({
+        success: false,
+        data: null,
+        message: "Invalid file type, please selece a PDF file",
+      });
     }
-    await fileBuffer.mv(videoPath);
-    portfolioData.video = "/user-portfolio/" + videoName;
-  } else if (
-    ["image/jpeg", "image/jpg", "image/png"].includes(fileBuffer.mimetype)
-  ) {
-    const imageName = user._id + "-" + fileBuffer.name;
-    const imagePath = dir + imageName;
-
-    // Delete any existing image file
-    if (portfolio.image) {
-      const existingImagePath = dir + portfolio.image.split("/").pop();
-      fs.unlinkSync(existingImagePath);
-    }
-    await fileBuffer.mv(imagePath);
-    portfolioData.image = "/user-portfolio/" + imageName;
-  } else {
-    return res.status(500).json({
-      success: false,
-      data: {},
-      message: `Error while saving the files types.`,
-    });
   }
-
+  if (files && files.image) {
+    const imageFile = files.image;
+    if (imageFile.size > 25000000) {
+      return res.status(500).json({
+        success: false,
+        data: {},
+        message: "file size is too high",
+      });
+    }
+    if (["image/jpeg", "image/jpg", "image/png"].includes(imageFile.mimetype)) {
+      const imageName = user._id + "-" + imageFile.name;
+      const imagePath = dir + imageName;
+      // Delete any existing image file
+      if (portfolio.image) {
+        const existingImagePath = dir + portfolio.image.split("/").pop();
+        fs.unlinkSync(existingImagePath);
+      }
+      await imageFile.mv(imagePath);
+      portfolioData.image = "/user-portfolio/" + imageName;
+    } else {
+      return res.status(400).json({
+        success: false,
+        data: null,
+        message: "Invalid file type, please selece a Image",
+      });
+    }
+  }
   try {
     const portfolioResult = await portfolioModel.findOneAndUpdate(
       { _id: params.id },
