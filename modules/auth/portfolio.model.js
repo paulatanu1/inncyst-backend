@@ -9,6 +9,7 @@ const portfolioSchema = Schema({
   video: { type: String, default: null },
   url: { type: String, default: null },
   createdAt: { type: Date, default: Date.now, },
+  deletedAt: { type: Date, default: null }
 });
 
 module.exports = model("portfolio", portfolioSchema);

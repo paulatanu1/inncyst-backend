@@ -464,6 +464,9 @@ const sendOtpEmal = async (user) => {
 
 const uploadPortfolio = async (req, res) => {
   const { user, files, body } = req;
+
+  console.log(req, files, body, "----")
+  
   const dir = __dirname + "/../../public/user-portfolio/";
   let portfolio;
   let portfolioData = {
@@ -649,7 +652,7 @@ const updatePortfolio = async (req, res) => {
 const portFolioData = async (req, res) => {
   const { user } = req;
   try {
-    const result = await portfolioModel.find({ user: user._id });
+    const result = await portfolioModel.find({ user: user._id, deletedAt: null });
     return res.status(200).json({
       success: true,
       data: result,
@@ -663,6 +666,28 @@ const portFolioData = async (req, res) => {
     });
   }
 };
+
+const deletePortfolio = async (req, res) => {
+  const { params } = req;
+  try {
+    const portfolioData = await portfolioModel.findOne({ _id: params.id});
+    if (portfolioData) {
+      portfolioData.deletedAt = Date.now();
+    }
+    await portfolioData.save();
+    return res.status(200).json({
+      success: true,
+      message: "Portfolio deleted successfully",
+      data: {}
+    })
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      data: {},
+      message: `Error. ${error.message}`,
+    });
+  }
+}
 
 module.exports = {
   register,
@@ -681,4 +706,5 @@ module.exports = {
   uploadPortfolio,
   updatePortfolio,
   portFolioData,
+  deletePortfolio
 };
