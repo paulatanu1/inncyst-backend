@@ -21,6 +21,6 @@ module.exports = async (req, res, next) => {
         }
         next();
     } catch (e) {
-        res.status(401).json({ message: 'jwt expired', data: null, status: 401, success: false });
+        res.status(401).json({ message: 'Unauthorized', data: null, status: 401, success: false });
     }
 };

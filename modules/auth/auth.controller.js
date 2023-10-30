@@ -1,4 +1,5 @@
 const bcrypt = require("bcryptjs");
+const { mongoose } = require("mongoose");
 const jwt = require("jsonwebtoken");
 const authModel = require("./auth.model");
 const portfolioModel = require("./portfolio.model");
@@ -539,6 +540,38 @@ const uploadPortfolio = async (req, res) => {
   }
 };
 
+const getById = async (req, res) => {
+  const { params, user } = req;
+  try {
+    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+      return res.status(400).json({
+        success: false,
+        data: null,
+        message: 'Invalid id provided'
+      });
+    }
+    const result = await portfolioModel.findOne({ _id: params.id, user: user._id });
+    if (!result) {
+      return res.status(400).json({
+        success: false,
+        data: {},
+        message: 'No data found'
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      data: result,
+      message: 'Success'
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      data: {},
+      message: `Error: ${error.message}`,
+    });
+  }
+};
+
 const updatePortfolio = async (req, res) => {
   const { user, files, body, params } = req;
   const dir = __dirname + "/../../public/user-portfolio/";
@@ -684,5 +717,6 @@ module.exports = {
   uploadPortfolio,
   updatePortfolio,
   portFolioData,
-  deletePortfolio
+  deletePortfolio,
+  getById
 };

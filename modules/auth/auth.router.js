@@ -16,7 +16,8 @@ const {
   uploadPortfolio,
   updatePortfolio,
   portFolioData,
-  deletePortfolio
+  deletePortfolio,
+  getById
 } = require("./auth.controller");
 const isLogged = require("../../middlewares/isLoggedIn.middleware");
 
@@ -37,6 +38,7 @@ router.put("/reset-phone-otp", resetPhoneOtp);
 // Portfolio
 router.get("/user/portfolio", isLogged, portFolioData);
 router.post("/user/portfolio", isLogged, uploadPortfolio);
+router.get("/user/portfolio/:id", isLogged, getById);
 router.put("/user/portfolio/:id", isLogged, updatePortfolio);
 router.delete("/user/portfolio/:id", isLogged, deletePortfolio);
 
