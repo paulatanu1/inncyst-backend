@@ -472,10 +472,14 @@ const uploadPortfolio = async (req, res) => {
     user: user._id,
     title: body.title,
     description: body.description,
+    youtubeUrl: body.youtubeUrl
   };
 
   if (body.url) {
     portfolioData.url = body.url;
+  }
+  if (body.youtubeUrl) {
+    portfolioData.youtubeUrl = body.youtubeUrl;
   }
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
@@ -585,7 +589,9 @@ const updatePortfolio = async (req, res) => {
   if (body.url) {
     portfolioData.url = body.url;
   }
-
+  if (body.youtubeUrl) {
+    portfolioData.youtubeUrl = body.youtubeUrl;
+  }
   if (files && files.pdf) {
     const pdfFile = files.pdf;
     if (pdfFile.size > 25000000) {

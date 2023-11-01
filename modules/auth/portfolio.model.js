@@ -8,6 +8,7 @@ const portfolioSchema = Schema({
   image: { type: String, default: null },
   video: { type: String, default: null },
   url: { type: String, default: null },
+  youtubeUrl: { type: String, default: null },
   createdAt: { type: Date, default: Date.now, },
   deletedAt: { type: Date, default: null }
 });
