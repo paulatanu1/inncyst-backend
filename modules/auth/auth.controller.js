@@ -101,9 +101,10 @@ const login = async (req, res) => {
     });
   }
   if (user.verified === false) {
-    return res.status(400).json({
+    return res.status(403).json({
       success: false,
-      message: "please varify your email and phone",
+      data: user,
+      message: "Please varify your email and phone",
     });
   }
   const compPassword = await bcrypt.compare(password, user.password);
@@ -298,20 +299,20 @@ const setNewPassword = async (req, res) => {
 };
 
 const verifyAccount = async (req, res) => {
-  const token = req.headers.authorization
-    ? req.headers.authorization.split(" ")[1]
-    : "";
-  const auth = jwt.verify(token, process.env.JWT_SECRET);
-  const { otp_email, otp_phone } = req.body;
-  const filter = { _id: auth._id };
+  // const token = req.headers.authorization
+  //   ? req.headers.authorization.split(" ")[1]
+  //   : "";
+  // const auth = jwt.verify(token, process.env.JWT_SECRET);
+  const { otp_email, otp_phone, id } = req.body;
+  const filter = { _id: id };
   const update = { verified: true };
   const otpData = await otpModel
-    .findOne({ userId: auth._id, emailOtp: otp_email })
+    .findOne({ userId: id, emailOtp: otp_email })
     .sort({ _id: -1 });
   if (otpData && otpData.emailOtp === otp_email) {
     if (otpData && otpData.phoneOtp === otp_phone) {
       await authModel.findOneAndUpdate(filter, update, { new: true });
-      await otpModel.deleteMany({ userId: auth._id });
+      await otpModel.deleteMany({ userId: id });
       return res.status(200).json({
         success: true,
         message: "Otp verified successfully",
@@ -331,12 +332,12 @@ const verifyAccount = async (req, res) => {
 };
 
 const resetEmailOtp = async (req, res) => {
-  const token = req.headers.authorization
-    ? req.headers.authorization.split(" ")[1]
-    : "";
-  const auth = jwt.verify(token, process.env.JWT_SECRET);
+  // const token = req.headers.authorization
+  //   ? req.headers.authorization.split(" ")[1]
+  //   : "";
+  // const auth = jwt.verify(token, process.env.JWT_SECRET);
   const otpEmail = generateOtp();
-  const otpData = await otpModel.findOne({ userId: auth._id });
+  const otpData = await otpModel.findOne({ userId: req.body.id });
   if (otpData) {
     otpData.emailOtp = otpEmail;
     await otpData.save();
@@ -355,7 +356,7 @@ const resetEmailOtp = async (req, res) => {
   setTimeout(() => {
     otpModel
       .findOneAndUpdate(
-        { userId: auth._id },
+        { userId: req.body.id },
         { emailOtp: null, phoneOtp: null },
         { new: true }
       )
@@ -369,12 +370,12 @@ const resetEmailOtp = async (req, res) => {
 };
 
 const resetPhoneOtp = async (req, res) => {
-  const token = req.headers.authorization
-    ? req.headers.authorization.split(" ")[1]
-    : "";
-  const auth = jwt.verify(token, process.env.JWT_SECRET);
+  // const token = req.headers.authorization
+  //   ? req.headers.authorization.split(" ")[1]
+  //   : "";
+  // const auth = jwt.verify(token, process.env.JWT_SECRET);
   const otpPhone = generateOtp();
-  const otpData = await otpModel.findOne({ userId: auth._id });
+  const otpData = await otpModel.findOne({ userId: req.body.id });
   if (otpData) {
     otpData.phoneOtp = otpPhone;
     await otpData.save();
@@ -393,7 +394,7 @@ const resetPhoneOtp = async (req, res) => {
   setTimeout(() => {
     otpModel
       .findOneAndUpdate(
-        { userId: auth._id },
+        { userId: req.body.id },
         { emailOtp: null, phoneOtp: null },
         { new: true }
       )
