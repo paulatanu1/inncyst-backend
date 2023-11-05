@@ -42,13 +42,13 @@ const register = async (req, res) => {
   });
   const savedUser = await saveAuthData.save();
   sendOtp(savedUser);
-  const verify_token = jwt.sign(
-    { _id: savedUser._id, email: savedUser.email },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: "2h",
-    }
-  );
+  // const verify_token = jwt.sign(
+  //   { _id: savedUser._id, email: savedUser.email },
+  //   process.env.JWT_SECRET,
+  //   {
+  //     expiresIn: "2h",
+  //   }
+  // );
   setTimeout(() => {
     otpModel
       .findOneAndUpdate(
@@ -61,7 +61,7 @@ const register = async (req, res) => {
   return res.status(200).json({
     success: true,
     data: savedUser,
-    token: verify_token,
+    // token: verify_token,
     message: "Successfully registered.",
   });
 };
