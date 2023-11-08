@@ -126,7 +126,6 @@ const addPost = async (req, res) => {
 const submitPost = async (req, res) => {
   const { user, body } = req;
   try {
-    body.industryId = user._id;
     body.status = true;
     const { error } = industryPost(body);
     if (error) {
