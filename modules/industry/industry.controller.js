@@ -131,7 +131,7 @@ const submitPost = async (req, res) => {
     if (error) {
       return res.status(400).json({
         success: false,
-        message: error.message,
+        message: 'All fields are mandatory',
       });
     }
     if (!body.id) {
