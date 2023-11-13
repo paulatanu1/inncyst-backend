@@ -6,6 +6,7 @@ const {
 } = require("../../middlewares/validator");
 const postModel = require("./industryPost.model");
 const studentModel = require("../student/student.model");
+const USERTYPES = require('../common/userType')
 
 const companyQuestions = async (req, res) => {
   const { user, body } = req;
@@ -131,7 +132,7 @@ const submitPost = async (req, res) => {
     if (error) {
       return res.status(400).json({
         success: false,
-        message: 'All fields are mandatory',
+        message: "All fields are mandatory",
       });
     }
     if (!body.id) {
@@ -252,6 +253,34 @@ const updateStatusOfStudent = async (req, res) => {
   });
 };
 
+const appliedStudentList = async (req, res) => {
+  const { user, params } = req;
+  try {
+    if (user.role !== USERTYPES.INDUSTRY) {
+      return res.status(400).json({
+        status: false,
+        data: {},
+        message: 'Unreachable for the role ' + user.role,
+      });
+    }
+    if (user.role === "industry") {
+      const jobPosts = await postModel.find({ industryId: user._id }).distinct("_id");
+      const applicationsOfStudent = await studentModel.find({ jobId: { $in: jobPosts } }).populate("userId");
+      return res.status(200).json({
+        success: true,
+        data: applicationsOfStudent,
+        message: "Successfully filtered applications of students",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      data: {},
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   companyQuestions,
   getAll,
@@ -262,4 +291,5 @@ module.exports = {
   updateStatus,
   postDelete,
   updateStatusOfStudent,
+  appliedStudentList,
 };
