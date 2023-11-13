@@ -263,15 +263,12 @@ const appliedStudentList = async (req, res) => {
         message: 'Unreachable for the role ' + user.role,
       });
     }
-    if (user.role === "industry") {
-      const jobPosts = await postModel.find({ industryId: user._id }).distinct("_id");
-      const applicationsOfStudent = await studentModel.find({ jobId: { $in: jobPosts } }).populate("userId");
-      return res.status(200).json({
-        success: true,
-        data: applicationsOfStudent,
-        message: "Successfully filtered applications of students",
-      });
-    }
+    const applicationsOfStudent = await studentModel.find({ jobId: params.id }).populate("userId");
+    return res.status(200).json({
+      success: true,
+      data: applicationsOfStudent,
+      message: "Successfully filtered applications of students",
+    });
   } catch (error) {
     return res.status(500).json({
       status: false,

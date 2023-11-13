@@ -11,7 +11,7 @@ router.put('/post-edit/:id', editPost);
 router.put('/post-status/:id', updateStatus);
 router.put('/student-application-status/:id', updateStatusOfStudent)
 router.delete('/delete-post/:id', postDelete);
-router.get('/applied-student', Authenticate, appliedStudentList);
+router.get('/applied-student/:id', Authenticate, appliedStudentList);
 
 
 module.exports = router;
