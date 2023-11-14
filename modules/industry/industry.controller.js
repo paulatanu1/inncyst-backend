@@ -51,8 +51,12 @@ const companyQuestions = async (req, res) => {
 const getAll = async (req, res) => {
   const { user, query } = req;
   const filter = {
-    industryId: user._id,
+    // industryId: user._id,
+    status: true
   };
+  if (user.role === 'industry') {
+    filter.industryId = user._id
+  }
   if (query) {
     if (query.status) {
       filter.status = query.status;
