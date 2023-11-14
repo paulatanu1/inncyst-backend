@@ -69,8 +69,11 @@ const getAll = async (req, res) => {
     if (query.stipend) {
       filter.stipend = { $lte: query.stipend };
     }
-    if (query.intranshipType) {
-      filter.intranshipType = query.intranshipType;
+    if (query.type) {
+      filter.type = query.type;
+    }
+    if (query.jobType) {
+      filter.intranshipType = query.jobType;
     }
     if (query.skills) {
       filter.skills = { $in: query.skills };
