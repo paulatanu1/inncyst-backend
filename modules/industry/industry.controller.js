@@ -52,10 +52,12 @@ const getAll = async (req, res) => {
   const { user, query } = req;
   const filter = {
     // industryId: user._id,
-    status: true
+    // status: true
   };
   if (user.role === 'industry') {
     filter.industryId = user._id
+  } else {
+    filter.status = true
   }
   if (query) {
     if (query.status) {
