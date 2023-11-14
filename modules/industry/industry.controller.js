@@ -69,9 +69,22 @@ const getAll = async (req, res) => {
     if (query.skills) {
       filter.skills = { $in: query.skills };
     }
+    if (query.location) {
+      filter.location = query.location;
+    }
+    if (query.salaryFrom && query.salaryTo) {
+      filter.salary = { $lte: query.salaryTo, $gte: query.salaryFrom };
+    }
+    if (query.sort && query.sort === "asc") {
+      query.sort = { createdAt: 1 };
+    }
+    if (query.sort && query.sort === "dsc") {
+      query.sort = { createdAt: -1 };
+    }
   }
   const posts = await postModel
     .find(filter)
+    .sort(query.sort)
     .limit(query.limit)
     .skip(query.page * query.limit);
   const total = await postModel.find(filter).countDocuments();
