@@ -6,7 +6,8 @@ const {
 } = require("../../middlewares/validator");
 const postModel = require("./industryPost.model");
 const studentModel = require("../student/student.model");
-const USERTYPES = require('../common/userType')
+const USERTYPES = require('../common/userType');
+const jwt = require('jsonwebtoken');
 
 const companyQuestions = async (req, res) => {
   const { user, body } = req;
@@ -49,16 +50,22 @@ const companyQuestions = async (req, res) => {
 };
 
 const getAll = async (req, res) => {
-  const { user, query } = req;
-  const filter = {
-    // industryId: user._id,
-    // status: true
-  };
-  if (user.role === 'industry') {
-    filter.industryId = user._id
+  const { query } = req;
+  const filter = {};
+  const token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : '';
+
+  if (token) {
+    const auth = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await authModel.findById(auth._id);
+    if (user && user.role === 'industry') {
+      filter.industryId = user._id
+    } else {
+      filter.status = true
+    }
   } else {
     filter.status = true
   }
+  
   if (query) {
     if (query.status) {
       filter.status = query.status;
