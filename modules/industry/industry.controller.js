@@ -86,7 +86,7 @@ const getAll = async (req, res) => {
       filter.skills = { $in: query.skills };
     }
     if (query.location) {
-      filter.location = query.location;
+      filter.location = query.location.toUpperCase();
     }
     if (query.salaryFrom && query.salaryTo) {
       filter.salary = { $lte: query.salaryTo, $gte: query.salaryFrom };
@@ -197,6 +197,7 @@ const submitPost = async (req, res) => {
         message: "Already submitted",
       });
     }
+    body.location = body.location.toUpperCase();
     const savedPost = await postModel.findOneAndUpdate({ _id: body.id }, body, {
       new: true,
     });
