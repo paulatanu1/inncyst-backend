@@ -4,7 +4,7 @@ const Authenticate = require('../../middlewares/isLoggedIn.middleware');
 
 router.post('/industry-question', Authenticate, companyQuestions);
 router.get('/industry-posts', getAll);
-router.get('/industry-posts/:id', Authenticate, getById)
+router.get('/industry-posts/:id', getById)
 router.post('/add-post', Authenticate, addPost);
 router.put('/add-post', Authenticate, submitPost);
 router.put('/post-edit/:id', editPost);
