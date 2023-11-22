@@ -20,12 +20,13 @@ const companyQuestions = async (req, res) => {
     });
   }
   const questions = new industryModel({
-    industryId: body.industryId,
+    industryId: user._id,
     companyName: body.companyName,
     companyEstdYear: body.companyEstdYear,
     aboutCompany: body.aboutCompany,
     empCount: body.empCount,
     workPlace: body.workPlace,
+    status: true
   });
   const saveQuestions = await questions.save();
   if (saveQuestions) {
@@ -56,7 +57,7 @@ const myProfile = async (req, res) => {
       data: {}
     });
   }
-  user.profile = await industryModel.findOne({ industryId: user._id });
+  // const profile = await industryModel.findOne({ industryId: user._id }).populate('industryId');
   return res.status(200).json({
     success: true,
     message: "",
@@ -65,7 +66,7 @@ const myProfile = async (req, res) => {
 }
 
 const editIndistry = async (req, res) => {
-  
+
 } 
 
 const getAll = async (req, res) => {
