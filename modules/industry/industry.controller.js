@@ -255,10 +255,10 @@ const editPost = async (req, res) => {
   });
 };
 
-const updateStatus = (req, res) => {
+const updateStatus = async (req, res) => {
   const { params, body } = req;
   const filter = { _id: params.id };
-  const data = postModel.findOneAndUpdate(
+  const data = await postModel.findOneAndUpdate(
     filter,
     { status: body.status },
     { new: true }
