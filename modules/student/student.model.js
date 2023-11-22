@@ -14,10 +14,10 @@ const studentSchema = Schema({
     enum: [
       "pending",
       "interviewScheduled",
-      "offerReceived",
       "hired",
       "notSelected",
       "rejected",
+      "sortListed"
     ],
     default: "pending",
   },

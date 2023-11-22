@@ -9,6 +9,7 @@ const portfolioSchema = Schema({
   video: { type: String, default: null },
   url: { type: String, default: null },
   youtubeUrl: { type: String, default: null },
+  portfolioStatus: { type: String, enum: ['ongoing', 'complete'], default: 'ongoing' },
   createdAt: { type: Date, default: Date.now, },
   deletedAt: { type: Date, default: null }
 });

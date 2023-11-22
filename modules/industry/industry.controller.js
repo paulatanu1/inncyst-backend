@@ -8,6 +8,7 @@ const postModel = require("./industryPost.model");
 const studentModel = require("../student/student.model");
 const USERTYPES = require('../common/userType');
 const jwt = require('jsonwebtoken');
+const portfolioModel = require('../auth/portfolio.model');
 
 const companyQuestions = async (req, res) => {
   const { user, body } = req;
@@ -25,12 +26,9 @@ const companyQuestions = async (req, res) => {
     aboutCompany: body.aboutCompany,
     empCount: body.empCount,
     workPlace: body.workPlace,
-    salaryPackege: body.salaryPackege,
   });
   const saveQuestions = await questions.save();
   if (saveQuestions) {
-    // user.question_step = true;
-    // await user.save();
     await authModel.findOneAndUpdate(
       { _id: user._id },
       { question_step: true },
@@ -39,7 +37,7 @@ const companyQuestions = async (req, res) => {
     return res.status(200).json({
       success: true,
       data: saveQuestions,
-      message: "Questions saved.",
+      message: "Profile updated.",
     });
   }
   return res.status(400).json({
@@ -48,6 +46,27 @@ const companyQuestions = async (req, res) => {
     message: "Something Wrong",
   });
 };
+
+const myProfile = async (req, res) => {
+  const { user } = req;
+  if (user.role !== 'industry') {
+    return res.status(403).json({
+      success: false,
+      message: "Access Denied",
+      data: {}
+    });
+  }
+  user.profile = await industryModel.findOne({ industryId: user._id });
+  return res.status(200).json({
+    success: true,
+    message: "",
+    data: user
+  });
+}
+
+const editIndistry = async (req, res) => {
+  
+} 
 
 const getAll = async (req, res) => {
   const { query } = req;
@@ -136,6 +155,7 @@ const getById = async (req, res) => {
 const addPost = async (req, res) => {
   const { body, user } = req;
   body.industryId = user._id;
+  body.status = false;
   const savedPost = new postModel(body);
   const result = await savedPost.save();
   if (result) {
@@ -294,11 +314,23 @@ const appliedStudentList = async (req, res) => {
       });
     }
     const applicationsOfStudent = await studentModel.find({ jobId: params.id }).populate("userId");
-    return res.status(200).json({
-      success: true,
-      data: applicationsOfStudent,
-      message: "Successfully filtered applications of students",
-    });
+
+  const promises = applicationsOfStudent.map(async (item) => {
+    const portfolioData = await portfolioModel.findOne({ user: item.userId._id });
+    if (portfolioData) {
+      return { ...item.toObject(), portfolioData };
+    } else {
+      return { ...item.toObject(), portfolioData: null };
+    }
+  });
+
+  const applicationsWithPortfolio = await Promise.all(promises);
+
+  return res.status(200).json({
+    success: true,
+    data: applicationsWithPortfolio,
+    message: "Successfully retrieved applications of students with portfolio data",
+  });
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -310,6 +342,7 @@ const appliedStudentList = async (req, res) => {
 
 module.exports = {
   companyQuestions,
+  myProfile,
   getAll,
   getById,
   addPost,

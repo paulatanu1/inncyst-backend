@@ -163,25 +163,17 @@ const uploadProfilePicture = async (req, res) => {
   if (!imageData) {
     return res.status(400).json({ message: "Base64 string is required." });
   }
-  // const mimeMatch = imageData.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,/);
-  //   const mimeType = mimeMatch[1];
-  //   console.log(mimeType !== 'image/jpeg');
-  //   if (mimeType !== 'image/jpeg') {
-  //     return res.status(400).json({
-  //       message: 'Invalid mime type'
-  //     })
-  //   }
-  const imageName = `IMG_${user._id}.jpg`;
-  const imagepath = __dirname + "/../../public/user-images/";
-  if (!fs.existsSync(imagepath)) {
-    fs.mkdirSync(imagepath);
-  }
-  const resultImage = imagepath + imageName;
-  const imageBuffer = Buffer.from(imageData.split(",")[1], "base64");
-  fs.writeFileSync(path.join(resultImage), imageBuffer);
+  // const imageName = `IMG_${user._id}.jpg`;
+  // const imagepath = __dirname + "/../../public/user-images/";
+  // if (!fs.existsSync(imagepath)) {
+  //   fs.mkdirSync(imagepath);
+  // }
+  // const resultImage = imagepath + imageName;
+  // const imageBuffer = Buffer.from(imageData.split(",")[1], "base64");
+  // fs.writeFileSync(path.join(resultImage), imageBuffer);
   const uploadData = await authModel.findByIdAndUpdate(
     { _id: user._id },
-    { image: "/user-images/" + imageName },
+    { image: imageData },
     { new: true }
   );
   return res.status(200).json({
@@ -473,7 +465,8 @@ const uploadPortfolio = async (req, res) => {
     user: user._id,
     title: body.title,
     description: body.description,
-    youtubeUrl: body.youtubeUrl
+    youtubeUrl: body.youtubeUrl,
+    portfolioStatus: body.portfolioStatus
   };
 
   if (body.url) {
@@ -585,6 +578,7 @@ const updatePortfolio = async (req, res) => {
     user: user._id,
     title: body.title,
     description: body.description,
+    portfolioStatus: body.portfolioStatus
   };
 
   if (body.url) {

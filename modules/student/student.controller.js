@@ -14,18 +14,19 @@ const studentController = {
     if (!base64Data) {
       return res.status(400).json({ error: "No base64 data provided" });
     }
-    const filepath = __dirname + "/../../public/user-resume/";
-    if (!fs.existsSync(filepath)) {
-      fs.mkdirSync(filepath);
-    }
-    const fileName = `PDF_${user._id}.pdf`;
-    const resultfile = filepath + fileName;
+    // const filepath = __dirname + "/../../public/user-resume/";
+    // if (!fs.existsSync(filepath)) {
+    //   fs.mkdirSync(filepath);
+    // }
+    // const fileName = `PDF_${user._id}.pdf`;
+    // const resultfile = filepath + fileName;
     // const fileBuffer = Buffer.from(base64Data.split(',')[1], 'base64');
-    const fileBuffer = Buffer.from(base64Data, 'base64');
-    fs.writeFileSync(path.join(resultfile), fileBuffer);
+    // const fileBuffer = Buffer.from(base64Data, 'base64');
+    // fs.writeFileSync(path.join(resultfile), fileBuffer);
     const savedData = await student.create({
       userId: user._id,
-      resume: `/user-resume/${fileName}`,
+      // resume: `/user-resume/${fileName}`,
+      resume: base64Data,
       jobId: body.jobId,
     });
     return res.status(200).json({
@@ -181,6 +182,13 @@ const studentController = {
         studentIntranshipData.intranshipDetails = industryDetailsdata;
       }
     }
+    const portfolioDataStudent = await portfolioModel.findOne({ user: user._id });
+    if (portfolioDataStudent) {
+      studentIntranshipData.portfolioData = portfolioDataStudent;
+    } else {
+      studentIntranshipData.portfolioData = null;
+    }
+    
     return res.status(200).json({
       success: true,
       data: studentIntranshipData,
