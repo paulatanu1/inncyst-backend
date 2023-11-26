@@ -38,6 +38,13 @@ const studentController = {
 
   uploadResume: async (req, res) => {
     const { user, body, files } = req;
+    if (!body.jobId) {
+      return res.status(400).json({
+        success: false,
+        message: "Job not found",
+        data: {}
+      })
+    }
     if (files && files.resume) {
       if (files.resume.size > 5242880) {
         return res.status(400).json({
@@ -125,16 +132,16 @@ const studentController = {
       if (intanshipDetails) {
         return {
           ...student,
-          intranshipDetails: intanshipDetails,
+          jobDetails: intanshipDetails,
         };
       } else {
         const industryDetailsdata = await industry.findOne({
           _id: student.jobId,
-        });
+        }).populate('company');
         if (industryDetailsdata) {
           return {
             ...student,
-            intranshipDetails: industryDetailsdata,
+            jobDetails: industryDetailsdata,
           };
         }
       }

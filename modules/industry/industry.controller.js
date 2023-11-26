@@ -2,7 +2,8 @@ const industryModel = require("./industry.model");
 const authModel = require("../auth/auth.model");
 const {
   industryQuestions,
-  industryPost,
+  industryPostIntranship,
+  industryPostJob
 } = require("../../middlewares/validator");
 const postModel = require("./industryPost.model");
 const studentModel = require("../student/student.model");
@@ -50,19 +51,26 @@ const companyQuestions = async (req, res) => {
 
 const myProfile = async (req, res) => {
   const { user } = req;
-  if (user.role !== 'industry') {
-    return res.status(403).json({
-      success: false,
-      message: "Access Denied",
-      data: {}
+  try {
+    if (user.role !== 'industry') {
+      return res.status(403).json({
+        success: false,
+        message: "Access Denied",
+        data: {}
+      });
+    }
+    const profile = await industryModel.findOne({ industryId: user._id }).populate('industryId');
+    return res.status(200).json({
+      success: true,
+      message: "",
+      data: profile
     });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "server error"
+    })
   }
-  // const profile = await industryModel.findOne({ industryId: user._id }).populate('industryId');
-  return res.status(200).json({
-    success: true,
-    message: "",
-    data: user
-  });
 }
 
 const editIndistry = async (req, res) => {
@@ -119,7 +127,7 @@ const getAll = async (req, res) => {
     }
   }
   const posts = await postModel
-    .find(filter)
+    .find(filter).populate('company')
     .sort(query.sort)
     .limit(query.limit)
     .skip(query.page * query.limit);
@@ -155,21 +163,59 @@ const getById = async (req, res) => {
 
 const addPost = async (req, res) => {
   const { body, user } = req;
-  body.industryId = user._id;
-  body.status = false;
-  const savedPost = new postModel(body);
-  const result = await savedPost.save();
-  if (result) {
-    return res.status(200).json({
-      success: true,
-      data: result,
-      message: "Post saved successfully",
-    });
-  } else {
-    return res.status(400).json({
-      success: false,
+  try {
+    if (user.role !== 'industry') {
+      return res.status(400).json({
+        success: false,
+        message: "not allow"
+      });
+    }
+    if (user.question_step === false) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please complete your profile for post a job',
+        data: {}
+      });
+    }
+
+    const comapanyDetails = await industryModel.findOne({ industryId: user._id });
+    body.industryId = user._id;
+    body.status = false;
+    body.company = comapanyDetails._id;
+  
+    if (body.id) {   // save druft after submit
+      const findresult = await postModel.findOneAndUpdate(
+        { _id: body.id },
+        body,
+        { new: true }
+      );
+      return res.status(200).json({
+        success: true,
+        data: findresult,
+        message: "Post saved to draft successfully",
+      });
+    }
+  
+    const savedPost = new postModel(body);
+    const result = await savedPost.save();
+    if (result) {
+      return res.status(200).json({
+        success: true,
+        data: result,
+        message: "Post saved successfully",
+      });
+    } else {
+      return res.status(400).json({
+        success: false,
+        data: {},
+        message: "Unable to saved post",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
       data: {},
-      message: "Unable to saved post",
+      message: error.message,
     });
   }
 };
@@ -178,56 +224,59 @@ const submitPost = async (req, res) => {
   const { user, body } = req;
   try {
     body.status = true;
-    const { error } = industryPost(body);
-    if (error) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are mandatory",
-      });
-    }
-    if (!body.id) {
-      const checkResult = await postModel.findOne({
-        type: body.type,
-        details: body.details,
-      });
+    if (body.type === 'job') {
+      const { error } = industryPostJob(body);
+      if (error) {
+        return res.status(400).json({
+          success: false,
+          message: "All fields are mandatory",
+        });
+      }
+      const checkResult = await postModel.findOne({ _id: body.id });
       if (checkResult && checkResult.status) {
         return res.status(200).json({
           success: true,
           message: "Already submitted",
         });
       }
-      const savePostData = new postModel(body);
-      const resultData = await savePostData.save();
-      if (resultData) {
+      body.location = body.location.toUpperCase();
+      const savedPost = await postModel.findOneAndUpdate({ _id: body.id }, body, {
+        new: true,
+      });
+      if (savedPost) {
         return res.status(200).json({
           success: true,
-          data: resultData,
-          message: "Post submited successfully",
+          data: savedPost,
+          message: "Job Post updated successfully",
         });
       }
-      return res.status(400).json({
-        success: false,
-        data: {},
-        message: "Unable to submit post",
-      });
     }
-    const checkResult = await postModel.findOne({ _id: body.id });
-    if (checkResult && checkResult.status) {
-      return res.status(200).json({
-        success: true,
-        message: "Already submitted",
+    if (body.type === 'intranship') {
+      const { error } = industryPostIntranship(body);
+      if (error) {
+        return res.status(400).json({
+          success: false,
+          message: "All fields are mandatory",
+        });
+      }
+      const checkResult = await postModel.findOne({ _id: body.id });
+      if (checkResult && checkResult.status) {
+        return res.status(200).json({
+          success: true,
+          message: "Already submitted",
+        });
+      }
+      body.location = body.location.toUpperCase();
+      const savedPost = await postModel.findOneAndUpdate({ _id: body.id }, body, {
+        new: true,
       });
-    }
-    body.location = body.location.toUpperCase();
-    const savedPost = await postModel.findOneAndUpdate({ _id: body.id }, body, {
-      new: true,
-    });
-    if (savedPost) {
-      return res.status(200).json({
-        success: true,
-        data: savedPost,
-        message: "Post updated successfully",
-      });
+      if (savedPost) {
+        return res.status(200).json({
+          success: true,
+          data: savedPost,
+          message: "Internship Post updated successfully",
+        });
+      }
     }
   } catch (error) {
     return res.status(400).json({
@@ -341,6 +390,39 @@ const appliedStudentList = async (req, res) => {
   }
 };
 
+const appliedStudentDetails = async (req, res) => {
+  const { params, user } = req;
+  try {
+    if (user.role !== USERTYPES.INDUSTRY) {
+      return res.status(400).json({
+        status: false,
+        data: {},
+        message: 'Unreachable for the role ' + user.role,
+      });
+    }
+    const applicationsOfStudent = await studentModel.findOne({ jobId: params.id, _id: params.student }).populate("userId").lean();
+    applicationsOfStudent.jobDetails = await postModel.findOne({ _id: params.id})
+    const portfolioData = await portfolioModel.find({ user: applicationsOfStudent.userId });
+    if (portfolioData.length) {
+      applicationsOfStudent.portfolioData = portfolioData;
+    } else {
+      applicationsOfStudent.portfolioData = [];
+    }
+
+  return res.status(200).json({
+    success: true,
+    data: applicationsOfStudent,
+    message: "Successfully retrieved application of student with portfolio data",
+  });
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      data: {},
+      message: error.message,
+    });
+  }
+}
+
 module.exports = {
   companyQuestions,
   myProfile,
@@ -353,4 +435,5 @@ module.exports = {
   postDelete,
   updateStatusOfStudent,
   appliedStudentList,
+  appliedStudentDetails
 };

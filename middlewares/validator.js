@@ -87,7 +87,7 @@ class Validator {
         return schema.validate(params);
     }
 
-    static industryPost(params) {
+    static industryPostIntranship(params) {
         const schema = Joi.object().keys({
             id: VALIDATIONS.STRING,
             type: VALIDATIONS.STRING_REQUIRED,
@@ -96,6 +96,31 @@ class Validator {
             intranshipType: VALIDATIONS.STRING_REQUIRED,
             startDate: VALIDATIONS.STRING_REQUIRED,
             duration: VALIDATIONS.STRING_REQUIRED,
+            durationIn: VALIDATIONS.STRING_REQUIRED,
+            education: VALIDATIONS.STRING_REQUIRED,
+            experienceTime: VALIDATIONS.STRING_REQUIRED,
+            jobOpening: VALIDATIONS.NUMBER_REQUIRED,
+            stipend: VALIDATIONS.STRING_REQUIRED,
+            salary: VALIDATIONS.NUMBER_REQUIRED,
+            salaryType: VALIDATIONS.STRING_REQUIRED,
+            perks: VALIDATIONS.ARRAY_REQUIRED,
+            location: VALIDATIONS.STRING_REQUIRED,
+            status: VALIDATIONS.BOOLEAN_REQUIRED
+        });
+        return schema.validate(params);
+    }
+
+    static industryPostJob(params) {
+        const schema = Joi.object().keys({
+            id: VALIDATIONS.STRING,
+            type: VALIDATIONS.STRING_REQUIRED,
+            skills: VALIDATIONS.ARRAY_REQUIRED,
+            details: VALIDATIONS.STRING_REQUIRED,
+            intranshipType: VALIDATIONS.STRING_REQUIRED,
+            durationIn: VALIDATIONS.STRING_REQUIRED,
+            education: VALIDATIONS.STRING_REQUIRED,
+            experience: VALIDATIONS.NUMBER_REQUIRED,
+            experienceTime: VALIDATIONS.STRING_REQUIRED,
             jobOpening: VALIDATIONS.NUMBER_REQUIRED,
             responsibilities: VALIDATIONS.ARRAY_REQUIRED,
             stipend: VALIDATIONS.STRING_REQUIRED,

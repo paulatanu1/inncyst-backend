@@ -2,6 +2,7 @@ const { Schema, model } = require("mongoose");
 
 const industrySchema = Schema({
   industryId: { type: Schema.Types.ObjectId, ref: "Auth" },
+  company: {type: Schema.Types.ObjectId, ref: "industry" },
   type: { type: String, enum: ["intranship", "job"] },
   details: { type: String },
   skills: [],
@@ -10,7 +11,11 @@ const industrySchema = Schema({
     enum: ["office", "hybrid", "remote"]
   },
   startDate: { type: String },
+  education: { type: String, enum: ['diploma', 'hs', 'master', 'bachelor'] },
   duration: { type: String },
+  durationIn: { type: String, enum: ["monthly", "yearly"] },
+  experience: { type: Number },
+  experienceTime: { type: String, enum: ["months", "years"] },
   jobOpening: { type: Number },
   responsibilities: [],
   stipend: {

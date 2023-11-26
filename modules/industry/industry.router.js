@@ -11,11 +11,12 @@ const {
   postDelete,
   updateStatusOfStudent,
   appliedStudentList,
+  appliedStudentDetails
 } = require("./industry.controller");
 const Authenticate = require("../../middlewares/isLoggedIn.middleware");
 
 // Industry Profile
-router.get("/industry/profile", Authenticate, myProfile);
+router.get("/profile", Authenticate, myProfile);
 
 
 // Job Management
@@ -29,5 +30,6 @@ router.put("/post-status/:id", updateStatus);
 router.put("/student-application-status/:id", updateStatusOfStudent);
 router.delete("/delete-post/:id", postDelete);
 router.get("/applied-student/:id", Authenticate, appliedStudentList);
+router.get("/applied-student/:id/student/:student", Authenticate, appliedStudentDetails);
 
 module.exports = router;
