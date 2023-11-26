@@ -317,11 +317,11 @@ const appliedStudentList = async (req, res) => {
     const applicationsOfStudent = await studentModel.find({ jobId: params.id }).populate("userId");
 
   const promises = applicationsOfStudent.map(async (item) => {
-    const portfolioData = await portfolioModel.findOne({ user: item.userId._id });
-    if (portfolioData) {
+    const portfolioData = await portfolioModel.find({ user: item.userId._id });
+    if (portfolioData.length) {
       return { ...item.toObject(), portfolioData };
     } else {
-      return { ...item.toObject(), portfolioData: null };
+      return { ...item.toObject(), portfolioData: [] };
     }
   });
 
