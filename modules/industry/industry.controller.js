@@ -12,7 +12,27 @@ const jwt = require('jsonwebtoken');
 const portfolioModel = require('../auth/portfolio.model');
 
 const companyQuestions = async (req, res) => {
-  const { user, body } = req;
+  const { user, body, params } = req;
+  if (params.id) {
+    const savedData = await industryModel.findOneAndUpdate(
+      { _id: params.id },
+      body,
+      { new: true }
+    );
+    return res.status(200).json({
+      success: true,
+      data: savedData,
+      message: "Profile updated.",
+    });
+  }
+  const check = await industryModel.findOne({ industryId: user._id });
+  if (check) {
+    return res.status(400).json({
+      success: false,
+      data: {},
+      message: "Profile already updated.",
+    });
+  }
   const { error } = industryQuestions(body);
   if (error) {
     return res.status(400).json({
@@ -72,10 +92,6 @@ const myProfile = async (req, res) => {
     })
   }
 }
-
-const editIndistry = async (req, res) => {
-
-} 
 
 const getAll = async (req, res) => {
   const { query } = req;

@@ -20,7 +20,7 @@ router.get("/profile", Authenticate, myProfile);
 
 
 // Job Management
-router.post("/industry-question", Authenticate, companyQuestions);
+router.post("/industry-question/:id?", Authenticate, companyQuestions);
 router.get("/industry-posts", getAll);
 router.get("/industry-posts/:id", getById);
 router.post("/add-post", Authenticate, addPost);
