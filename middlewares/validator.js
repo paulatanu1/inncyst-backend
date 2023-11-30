@@ -106,7 +106,7 @@ class Validator {
             salaryType: VALIDATIONS.STRING_REQUIRED,
             perks: VALIDATIONS.ARRAY_REQUIRED,
             location: VALIDATIONS.STRING_REQUIRED,
-            responsibilities: VALIDATIONS.ARRAY_REQUIRED,
+            responsibilities: VALIDATIONS.ANY,
             status: VALIDATIONS.BOOLEAN_REQUIRED
         });
         return schema.validate(params);
@@ -124,7 +124,7 @@ class Validator {
             experience: VALIDATIONS.NUMBER_REQUIRED,
             experienceTime: VALIDATIONS.STRING_REQUIRED,
             jobOpening: VALIDATIONS.NUMBER_REQUIRED,
-            responsibilities: VALIDATIONS.ARRAY_REQUIRED,
+            responsibilities: VALIDATIONS.ANY,
             stipend: VALIDATIONS.STRING_REQUIRED,
             salary: VALIDATIONS.NUMBER_REQUIRED,
             salaryType: VALIDATIONS.STRING_REQUIRED,
