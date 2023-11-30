@@ -107,6 +107,7 @@ class Validator {
             perks: VALIDATIONS.ARRAY_REQUIRED,
             location: VALIDATIONS.STRING_REQUIRED,
             responsibilities: VALIDATIONS.ANY,
+            experience: VALIDATIONS.ANY,
             status: VALIDATIONS.BOOLEAN_REQUIRED
         });
         return schema.validate(params);
