@@ -119,6 +119,7 @@ class Validator {
             skills: VALIDATIONS.ARRAY_REQUIRED,
             details: VALIDATIONS.STRING_REQUIRED,
             intranshipType: VALIDATIONS.STRING_REQUIRED,
+            duration: VALIDATIONS.ANY,
             durationIn: VALIDATIONS.STRING_REQUIRED,
             education: VALIDATIONS.STRING_REQUIRED,
             experience: VALIDATIONS.NUMBER_REQUIRED,
