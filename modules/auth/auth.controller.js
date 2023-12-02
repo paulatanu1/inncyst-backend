@@ -458,8 +458,15 @@ const sendOtpEmal = async (user) => {
 
 const uploadPortfolio = async (req, res) => {
   const { user, files, body } = req;
-  console.log(body, "body");
   const dir = __dirname + "/../../public/user-portfolio/";
+  const checkPortFolio = await portfolioModel.find({ user: user._id });
+  if (checkPortFolio.length === 5) {
+    return res.status(400).json({
+      success: false,
+      data: {},
+      message: "Maximum limit reached (maximum is 5).",
+    });
+  }
   let portfolio;
   let portfolioData = {
     user: user._id,

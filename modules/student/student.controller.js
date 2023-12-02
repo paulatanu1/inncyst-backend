@@ -189,7 +189,7 @@ const studentController = {
         studentIntranshipData.intranshipDetails = industryDetailsdata;
       }
     }
-    const portfolioDataStudent = await portfolioModel.findOne({ user: user._id });
+    const portfolioDataStudent = await portfolioModel.find({ user: user._id });
     if (portfolioDataStudent) {
       studentIntranshipData.portfolioData = portfolioDataStudent;
     } else {
