@@ -43,6 +43,7 @@ const companyQuestions = async (req, res) => {
   const questions = new industryModel({
     industryId: user._id,
     companyName: body.companyName,
+    image: body.image,
     companyEstdYear: body.companyEstdYear,
     aboutCompany: body.aboutCompany,
     empCount: body.empCount,
