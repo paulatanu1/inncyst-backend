@@ -41,12 +41,11 @@ class Validator {
     static industryQuestions(params) {
         const schema = Joi.object().keys({
             companyName: VALIDATIONS.STRING_REQUIRED,
-            image: VALIDATIONS.STRING_REQUIRED,
             companyEstdYear: VALIDATIONS.STRING_REQUIRED,
             aboutCompany: VALIDATIONS.STRING_REQUIRED,
             empCount: VALIDATIONS.NUMBER_REQUIRED,
             workPlace: VALIDATIONS.STRING_REQUIRED,
-            image: VALIDATIONS.ANY
+            image: VALIDATIONS.STRING
         });
         return schema.validate(params);
     }

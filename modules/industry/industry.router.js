@@ -24,7 +24,7 @@ router.post("/industry-question/:id?", Authenticate, companyQuestions);
 router.get("/industry-posts", getAll);
 router.get("/industry-posts/:id", getById);
 router.post("/add-post", Authenticate, addPost);
-router.put("/add-post", Authenticate, submitPost);
+router.post("/submit-post", Authenticate, submitPost);
 router.put("/post-edit/:id", editPost);
 router.put("/post-status/:id", updateStatus);
 router.put("/student-application-status/:id", updateStatusOfStudent);
