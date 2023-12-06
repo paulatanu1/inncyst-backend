@@ -11,11 +11,11 @@ const industrySchema = Schema({
     enum: ["office", "hybrid", "remote"], default: "office"
   },
   startDate: { type: String, default: null },
-  education: { type: String, enum: ['diploma', 'hs', 'master', 'bachelor'], default: null },
+  education: { type: String, enum: ['diploma', 'hs', 'master', 'bachelor'] },
   duration: { type: String, default: null },
   durationIn: { type: String, enum: ["monthly", "yearly"], default: 'monthly' },
   experience: { type: Number },
-  experienceTime: { type: String, enum: ["months", "years"], default: null },
+  experienceTime: { type: String, enum: ["months", "years"]},
   jobOpening: { type: Number, default: null },
   responsibilities: [],
   stipend: {
