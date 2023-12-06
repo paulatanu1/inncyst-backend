@@ -13,7 +13,7 @@ const industrySchema = Schema({
   startDate: { type: String, default: null },
   education: { type: String, enum: ['diploma', 'hs', 'master', 'bachelor'], default: null },
   duration: { type: String, default: null },
-  durationIn: { type: String, enum: ["monthly", "yearly"], default: null },
+  durationIn: { type: String, enum: ["monthly", "yearly"], default: 'monthly' },
   experience: { type: Number },
   experienceTime: { type: String, enum: ["months", "years"], default: null },
   jobOpening: { type: Number, default: null },

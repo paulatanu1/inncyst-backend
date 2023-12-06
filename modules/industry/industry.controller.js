@@ -59,7 +59,7 @@ const companyQuestions = async (req, res) => {
     );
     return res.status(200).json({
       success: true,
-      data: saveQuestions,
+      data: {saveQuestions, user},
       message: "Profile updated.",
     });
   }

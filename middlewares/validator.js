@@ -99,15 +99,12 @@ class Validator {
             duration: VALIDATIONS.STRING_REQUIRED,
             durationIn: VALIDATIONS.STRING_REQUIRED,
             education: VALIDATIONS.STRING_REQUIRED,
-            experienceTime: VALIDATIONS.STRING_REQUIRED,
             jobOpening: VALIDATIONS.NUMBER_REQUIRED,
             stipend: VALIDATIONS.STRING_REQUIRED,
             salary: VALIDATIONS.NUMBER_REQUIRED,
             salaryType: VALIDATIONS.STRING_REQUIRED,
             perks: VALIDATIONS.ARRAY_REQUIRED,
             location: VALIDATIONS.STRING_REQUIRED,
-            responsibilities: VALIDATIONS.ANY,
-            experience: VALIDATIONS.ANY,
             status: VALIDATIONS.BOOLEAN_REQUIRED
         });
         return schema.validate(params);
@@ -120,8 +117,8 @@ class Validator {
             skills: VALIDATIONS.ARRAY_REQUIRED,
             details: VALIDATIONS.STRING_REQUIRED,
             intranshipType: VALIDATIONS.STRING_REQUIRED,
-            duration: VALIDATIONS.ANY,
-            durationIn: VALIDATIONS.STRING_REQUIRED,
+            // duration: VALIDATIONS.ANY,
+            // durationIn: VALIDATIONS.STRING_REQUIRED,
             education: VALIDATIONS.STRING_REQUIRED,
             experience: VALIDATIONS.NUMBER_REQUIRED,
             experienceTime: VALIDATIONS.STRING_REQUIRED,
@@ -132,7 +129,7 @@ class Validator {
             salaryType: VALIDATIONS.STRING_REQUIRED,
             perks: VALIDATIONS.ARRAY_REQUIRED,
             location: VALIDATIONS.STRING_REQUIRED,
-            startDate: VALIDATIONS.ANY,
+            // startDate: VALIDATIONS.ANY,
             status: VALIDATIONS.BOOLEAN_REQUIRED
         });
         return schema.validate(params);
