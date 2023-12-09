@@ -10,13 +10,13 @@ const industrySchema = Schema({
     type: String,
     enum: ["office", "hybrid", "remote"], default: "office"
   },
-  startDate: { type: String, default: null },
+  startDate: { type: String },
   education: { type: String, enum: ['diploma', 'hs', 'master', 'bachelor'] },
-  duration: { type: String, default: null },
+  duration: { type: String },
   durationIn: { type: String, enum: ["monthly", "yearly"], default: 'monthly' },
   experience: { type: Number },
   experienceTime: { type: String, enum: ["months", "years"]},
-  jobOpening: { type: Number, default: null },
+  jobOpening: { type: Number },
   responsibilities: [],
   stipend: {
     type: String,
@@ -25,8 +25,13 @@ const industrySchema = Schema({
   salary: { type: Number, default: null },
   salaryType: { type: String, enum: ["monthly", "yearly"], default: 'monthly' },
   perks: [],
-  location: { type: String, default: null },
+  location: { type: String },
   status: { type: Boolean, default: false },
+  coverLetter: {
+    letter: { type: String, default: null },
+    availability: { type: String, default: null },
+    moreQuestions: [String]
+  },
   createdAt: {
     type: Date,
     default: Date.now,

@@ -212,7 +212,13 @@ const addPost = async (req, res) => {
         message: "Post saved to draft successfully",
       });
     }
-  
+
+    body.coverLetter = {
+      letter: body.letter,
+      availability: body.availability,
+      moreQuestions: body.moreQuestions
+    }
+
     const savedPost = new postModel(body);
     const result = await savedPost.save();
     if (result) {
@@ -249,14 +255,21 @@ const submitPost = async (req, res) => {
           message: "All fields are mandatory",
         });
       }
-      const checkResult = await postModel.findOne({ _id: body.id });
-      if (checkResult && checkResult.status) {
-        return res.status(200).json({
-          success: true,
-          message: "Already submitted",
-        });
-      }
+      // const checkResult = await postModel.findOne({ _id: body.id });
+      // if (checkResult && checkResult.status) {
+      //   return res.status(200).json({
+      //     success: true,
+      //     message: "Already submitted",
+      //   });
+      // }
       body.location = body.location.toUpperCase();
+
+      body.coverLetter = {
+        letter: body.letter,
+        availability: body.availability,
+        moreQuestions: body.moreQuestions
+      }
+
       const savedPost = await postModel.findOneAndUpdate({ _id: body.id }, body, {
         new: true,
       });
@@ -276,14 +289,21 @@ const submitPost = async (req, res) => {
           message: "All fields are mandatory",
         });
       }
-      const checkResult = await postModel.findOne({ _id: body.id });
-      if (checkResult && checkResult.status) {
-        return res.status(200).json({
-          success: true,
-          message: "Already submitted",
-        });
-      }
+      // const checkResult = await postModel.findOne({ _id: body.id });
+      // if (checkResult && checkResult.status) {
+      //   return res.status(200).json({
+      //     success: true,
+      //     message: "Already submitted",
+      //   });
+      // }
       body.location = body.location.toUpperCase();
+
+      body.coverLetter = {
+        letter: body.letter,
+        availability: body.availability,
+        moreQuestions: body.moreQuestions
+      }
+      
       const savedPost = await postModel.findOneAndUpdate({ _id: body.id }, body, {
         new: true,
       });

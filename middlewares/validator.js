@@ -105,7 +105,10 @@ class Validator {
             salaryType: VALIDATIONS.STRING_REQUIRED,
             perks: VALIDATIONS.ARRAY_REQUIRED,
             location: VALIDATIONS.STRING_REQUIRED,
-            status: VALIDATIONS.BOOLEAN_REQUIRED
+            status: VALIDATIONS.BOOLEAN_REQUIRED,
+            letter: VALIDATIONS.STRING,
+            availability: VALIDATIONS.STRING,
+            moreQuestions: VALIDATIONS.ARRAY,
         });
         return schema.validate(params);
     }
@@ -130,7 +133,10 @@ class Validator {
             perks: VALIDATIONS.ARRAY_REQUIRED,
             location: VALIDATIONS.STRING_REQUIRED,
             // startDate: VALIDATIONS.ANY,
-            status: VALIDATIONS.BOOLEAN_REQUIRED
+            status: VALIDATIONS.BOOLEAN_REQUIRED,
+            letter: VALIDATIONS.STRING,
+            availability: VALIDATIONS.STRING,
+            moreQuestions: VALIDATIONS.ARRAY,
         });
         return schema.validate(params);
     }
