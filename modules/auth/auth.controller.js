@@ -305,8 +305,18 @@ const verifyAccount = async (req, res) => {
     if (otpData && otpData.phoneOtp === otp_phone) {
       await authModel.findOneAndUpdate(filter, update, { new: true });
       await otpModel.deleteMany({ userId: id });
+      const token_jwt = jwt.sign(
+        {
+          _id: id,
+        },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "2h",
+        }
+      );
       return res.status(200).json({
         success: true,
+        token: token_jwt,
         message: "Otp verified successfully",
       });
     } else {
