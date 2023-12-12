@@ -199,6 +199,11 @@ const addPost = async (req, res) => {
     body.industryId = user._id;
     body.status = false;
     body.company = comapanyDetails._id;
+    body.coverLetter = {
+      letter: body.letter,
+      availability: body.availability,
+      moreQuestions: body.moreQuestions
+    }
   
     if (body.id) {   // save druft after submit
       const findresult = await postModel.findOneAndUpdate(
@@ -213,11 +218,11 @@ const addPost = async (req, res) => {
       });
     }
 
-    body.coverLetter = {
-      letter: body.letter,
-      availability: body.availability,
-      moreQuestions: body.moreQuestions
-    }
+    // body.coverLetter = {
+    //   letter: body.letter,
+    //   availability: body.availability,
+    //   moreQuestions: body.moreQuestions
+    // }
 
     const savedPost = new postModel(body);
     const result = await savedPost.save();
