@@ -101,6 +101,7 @@ const login = async (req, res) => {
     });
   }
   if (user.verified === false) {
+    sendOtp(user)
     return res.status(403).json({
       success: false,
       data: user,

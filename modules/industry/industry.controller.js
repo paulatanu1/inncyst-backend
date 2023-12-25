@@ -163,7 +163,7 @@ const getById = async (req, res) => {
   const { params } = req;
   const result = await postModel.findOne({
     _id: params.id,
-  });
+  }).populate('company');
   if (!result) {
     return res.status(400).json({
       success: false,
