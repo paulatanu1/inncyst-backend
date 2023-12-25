@@ -30,7 +30,7 @@ const register = async (req, res) => {
   if (userData) {
     return res.status(400).json({
       success: false,
-      message: "User Already exist",
+      message: "Your account is Already exist",
     });
   }
   const saveAuthData = new authModel({
@@ -116,7 +116,7 @@ const login = async (req, res) => {
       },
       process.env.JWT_SECRET,
       {
-        expiresIn: "2h",
+        expiresIn: "30d",
       }
     );
     return res.status(200).json({
