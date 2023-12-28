@@ -98,84 +98,131 @@ const getAll = async (req, res) => {
   const { query } = req;
   const filter = {};
   const token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : '';
-
-  if (token) {
-    const auth = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await authModel.findById(auth._id);
-    if (user && user.role === 'industry') {
-      filter.industryId = user._id
+  try {
+    if (token) {
+      const auth = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await authModel.findById(auth._id);
+      if (user && user.role === 'industry') {
+        filter.industryId = user._id
+      } else {
+        filter.status = true
+      }
     } else {
       filter.status = true
     }
-  } else {
-    filter.status = true
+    
+    if (query) {
+      if (query.status) {
+        filter.status = query.status;
+      }
+      if (query.jobOpening) {
+        filter.jobOpening = { $lte: query.jobOpening };
+      }
+      if (query.stipend) {
+        filter.stipend = { $lte: query.stipend };
+      }
+      if (query.type) {
+        filter.type = query.type;
+      }
+      if (query.jobType) {
+        filter.intranshipType = query.jobType;
+      }
+      if (query.skills) {
+        filter.skills = { $in: query.skills };
+      }
+      if (query.location) {
+        filter.location = query.location.toUpperCase();
+      }
+      if (query.salaryFrom && query.salaryTo) {
+        filter.salary = { $lte: query.salaryTo, $gte: query.salaryFrom };
+      }
+      if (query.sort && query.sort === "asc") {
+        query.sort = { createdAt: 1 };
+      }
+      if (query.sort && query.sort === "dsc") {
+        query.sort = { createdAt: -1 };
+      }
+    }
+    const posts = await postModel
+      .find(filter).populate('company')
+      .sort(query.sort)
+      .limit(query.limit)
+      .skip(query.page * query.limit);
+      const postsWithAppliedKey = await Promise.all(posts.map(async (post) => {
+        if (token) {
+          const auth = jwt.verify(token, process.env.JWT_SECRET);
+          const user = await authModel.findById(auth._id);
+          const check = await studentModel.findOne({
+            userId: user ? user._id : null,
+            jobId: post._id,
+          });
+          return {
+            ...post.toObject(),
+            applied: check && check.status ? true : false,
+          };
+        } else {
+          return {
+            ...post.toObject(),
+            applied: false,
+          };
+        }
+      }));
+    const total = await postModel.find(filter).countDocuments();
+    return res.status(200).json({
+      success: true,
+      data: {
+        total: total,
+        items: postsWithAppliedKey,
+      },
+      message: "Successfully get list of jobs",
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      data: {},
+      message: error.message,
+    });
   }
   
-  if (query) {
-    if (query.status) {
-      filter.status = query.status;
-    }
-    if (query.jobOpening) {
-      filter.jobOpening = { $lte: query.jobOpening };
-    }
-    if (query.stipend) {
-      filter.stipend = { $lte: query.stipend };
-    }
-    if (query.type) {
-      filter.type = query.type;
-    }
-    if (query.jobType) {
-      filter.intranshipType = query.jobType;
-    }
-    if (query.skills) {
-      filter.skills = { $in: query.skills };
-    }
-    if (query.location) {
-      filter.location = query.location.toUpperCase();
-    }
-    if (query.salaryFrom && query.salaryTo) {
-      filter.salary = { $lte: query.salaryTo, $gte: query.salaryFrom };
-    }
-    if (query.sort && query.sort === "asc") {
-      query.sort = { createdAt: 1 };
-    }
-    if (query.sort && query.sort === "dsc") {
-      query.sort = { createdAt: -1 };
-    }
-  }
-  const posts = await postModel
-    .find(filter).populate('company')
-    .sort(query.sort)
-    .limit(query.limit)
-    .skip(query.page * query.limit);
-  const total = await postModel.find(filter).countDocuments();
-  return res.status(200).json({
-    success: true,
-    data: {
-      total: total,
-      items: posts,
-    },
-    message: "Successfully get list of jobs",
-  });
 };
 
 const getById = async (req, res) => {
   const { params } = req;
-  const result = await postModel.findOne({
-    _id: params.id,
-  }).populate('company');
-  if (!result) {
+  const token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : '';
+  try {
+    const result = await postModel.findOne({
+      _id: params.id,
+    }).populate('company').lean();
+    if (!result) {
+      return res.status(400).json({
+        success: false,
+        message: "no such job found",
+        data: null,
+      });
+    }
+    if (token) {
+      const auth = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await authModel.findById(auth._id);
+      const check = await studentModel.findOne({
+        userId: user ? user._id : null,
+        jobId: result._id,
+      });
+      result.applied = check && check.status ? true : false;
+    } else {
+      result.applied = false;
+    }
+    return res.status(200).json({
+      success: true,
+      data: result,
+      message: "success",
+    });
+  } catch (error) {
     return res.status(400).json({
       success: false,
-      message: "no such job found",
-      data: null,
+      data: {},
+      message: error.message,
     });
   }
-  return res.status(200).json({
-    success: true,
-    data: result,
-    message: "success",
-  });
 };
 
 const addPost = async (req, res) => {

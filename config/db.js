@@ -7,7 +7,8 @@ const mongoose = require("mongoose");
 
 const connentDB = async () => {
   try {
-    const conn = await mongoose.connect(DB_URI_ATLAS, { useNewUrlParser: true, useUnifiedTopology: true});
+    mongoose.set('strictQuery', false);
+    const conn = await mongoose.connect(DB_URI, { useNewUrlParser: true, useUnifiedTopology: true});
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     console.log("Failed to connect to the server", error);
