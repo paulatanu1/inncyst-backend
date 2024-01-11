@@ -398,13 +398,31 @@ const updateStatus = async (req, res) => {
   const { params, body } = req;
   const filter = { _id: params.id };
   const checkActiveStatus = await postModel.findOne(filter);
-  if (checkActiveStatus && checkActiveStatus.status) {
-    return res.status(400).json({
+  if (checkActiveStatus.status === body.status) {
+    const message = body.status
+      ? "Post Already Published"
+      : "Post Unpublished";
+
+    return res.status(200).json({
       status: true,
       data: {},
-      message: "Post Already Published",
+      message,
     });
   }
+  // if (checkActiveStatus.status === true && body.status === true) {
+  //   return res.status(200).json({
+  //     status: true,
+  //     data: {},
+  //     message: "Post Already Published",
+  //   });
+  // }
+  // if (checkActiveStatus.status === false && body.status === false) {
+  //   return res.status(200).json({
+  //     status: true,
+  //     data: {},
+  //     message: "Post Unpublished",
+  //   });
+  // }
   const data = await postModel.findOneAndUpdate(
     filter,
     { status: body.status },
