@@ -106,9 +106,9 @@ class Validator {
             perks: VALIDATIONS.ARRAY_REQUIRED,
             location: VALIDATIONS.STRING_REQUIRED,
             status: VALIDATIONS.BOOLEAN_REQUIRED,
-            letter: VALIDATIONS.STRING,
-            availability: VALIDATIONS.STRING,
-            moreQuestions: VALIDATIONS.ARRAY,
+            letter: VALIDATIONS.ANY,
+            availability: VALIDATIONS.ANY,
+            moreQuestions: VALIDATIONS.ANY,
         });
         return schema.validate(params);
     }
@@ -134,9 +134,9 @@ class Validator {
             location: VALIDATIONS.STRING_REQUIRED,
             // startDate: VALIDATIONS.ANY,
             status: VALIDATIONS.BOOLEAN_REQUIRED,
-            letter: VALIDATIONS.STRING,
-            availability: VALIDATIONS.STRING,
-            moreQuestions: VALIDATIONS.ARRAY,
+            letter: VALIDATIONS.ANY,
+            availability: VALIDATIONS.ANY,
+            moreQuestions: VALIDATIONS.ANY,
         });
         return schema.validate(params);
     }

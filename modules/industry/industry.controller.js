@@ -304,7 +304,7 @@ const submitPost = async (req, res) => {
       if (error) {
         return res.status(400).json({
           success: false,
-          message: "All fields are mandatory",
+          message: error.message,
         });
       }
       // const checkResult = await postModel.findOne({ _id: body.id });
@@ -338,7 +338,7 @@ const submitPost = async (req, res) => {
       if (error) {
         return res.status(400).json({
           success: false,
-          message: "All fields are mandatory",
+          message: error.message,
         });
       }
       // const checkResult = await postModel.findOne({ _id: body.id });
