@@ -45,7 +45,7 @@ class Validator {
             aboutCompany: VALIDATIONS.STRING_REQUIRED,
             empCount: VALIDATIONS.NUMBER_REQUIRED,
             workPlace: VALIDATIONS.STRING_REQUIRED,
-            image: VALIDATIONS.STRING
+            image: VALIDATIONS.STRING_REQUIRED
         });
         return schema.validate(params);
     }
@@ -106,9 +106,9 @@ class Validator {
             perks: VALIDATIONS.ARRAY_REQUIRED,
             location: VALIDATIONS.STRING_REQUIRED,
             status: VALIDATIONS.BOOLEAN_REQUIRED,
-            letter: VALIDATIONS.STRING,
-            availability: VALIDATIONS.STRING,
-            moreQuestions: VALIDATIONS.ARRAY,
+            letter: VALIDATIONS.ANY,
+            availability: VALIDATIONS.ANY,
+            moreQuestions: VALIDATIONS.ANY,
         });
         return schema.validate(params);
     }
@@ -134,9 +134,9 @@ class Validator {
             location: VALIDATIONS.STRING_REQUIRED,
             // startDate: VALIDATIONS.ANY,
             status: VALIDATIONS.BOOLEAN_REQUIRED,
-            letter: VALIDATIONS.STRING,
-            availability: VALIDATIONS.STRING,
-            moreQuestions: VALIDATIONS.ARRAY,
+            letter: VALIDATIONS.ANY,
+            availability: VALIDATIONS.ANY,
+            moreQuestions: VALIDATIONS.ANY,
         });
         return schema.validate(params);
     }

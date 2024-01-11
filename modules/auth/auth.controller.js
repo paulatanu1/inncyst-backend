@@ -304,7 +304,7 @@ const verifyAccount = async (req, res) => {
     .sort({ _id: -1 });
   if (otpData && otpData.emailOtp === otp_email) {
     if (otpData && otpData.phoneOtp === otp_phone) {
-      await authModel.findOneAndUpdate(filter, update, { new: true });
+      const user = await authModel.findOneAndUpdate(filter, update, { new: true });
       await otpModel.deleteMany({ userId: id });
       const token_jwt = jwt.sign(
         {
@@ -317,6 +317,7 @@ const verifyAccount = async (req, res) => {
       );
       return res.status(200).json({
         success: true,
+        data: user,
         token: token_jwt,
         message: "Otp verified successfully",
       });
@@ -432,7 +433,7 @@ const sendOtp = async (user) => {
     };
     const nodeMailer = new NodeMailer(mailOptions);
     await nodeMailer.sentMail();
-    const dd = await sendSMS();
+    const dd = await sendSMS(otpPhone, phone);
     console.log(dd, "-------");
   } catch (error) {
     console.log(error);

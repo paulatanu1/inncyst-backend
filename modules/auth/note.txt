@@ -1,3 +1,19 @@
 new data for the given portfolio
 
 Project of student ---> On going, Completed
+
+
+// const endpoint = "https://www.fast2sms.com/dev/bulkV2";
+  // const queries = {
+  //   authorization: API_KEY,
+  //   variables_values: message,
+  //   route: "otp",
+  //   numbers: numbers.join(","),
+  // };
+
+  // const queryString = Object.entries(queries)
+  //   .map((query) => `${query[0]}=${query[1]}`)
+  //   .join("&");
+  // const url = endpoint + "?" + queryString;
+  // console.log(url)
+  // return await(await fetch(url)).json();

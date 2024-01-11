@@ -304,7 +304,7 @@ const submitPost = async (req, res) => {
       if (error) {
         return res.status(400).json({
           success: false,
-          message: "All fields are mandatory",
+          message: error.message,
         });
       }
       // const checkResult = await postModel.findOne({ _id: body.id });
@@ -338,7 +338,7 @@ const submitPost = async (req, res) => {
       if (error) {
         return res.status(400).json({
           success: false,
-          message: "All fields are mandatory",
+          message: error.message,
         });
       }
       // const checkResult = await postModel.findOne({ _id: body.id });
@@ -397,6 +397,32 @@ const editPost = async (req, res) => {
 const updateStatus = async (req, res) => {
   const { params, body } = req;
   const filter = { _id: params.id };
+  const checkActiveStatus = await postModel.findOne(filter);
+  if (checkActiveStatus.status === body.status) {
+    const message = body.status
+      ? "Post Already Published"
+      : "Post Unpublished";
+
+    return res.status(200).json({
+      status: true,
+      data: {},
+      message,
+    });
+  }
+  // if (checkActiveStatus.status === true && body.status === true) {
+  //   return res.status(200).json({
+  //     status: true,
+  //     data: {},
+  //     message: "Post Already Published",
+  //   });
+  // }
+  // if (checkActiveStatus.status === false && body.status === false) {
+  //   return res.status(200).json({
+  //     status: true,
+  //     data: {},
+  //     message: "Post Unpublished",
+  //   });
+  // }
   const data = await postModel.findOneAndUpdate(
     filter,
     { status: body.status },

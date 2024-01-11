@@ -25,6 +25,8 @@
     "ejs": "^3.1.9",
     "express": "^4.17.3",
     "express-fileupload": "^1.4.0",
+    "fast-two-sms": "^3.0.0",
+    "fast2sms": "^1.0.3",
     "file-type": "^18.5.0",
     "isomorphic-fetch": "^3.0.0",
     "joi": "^17.9.2",
