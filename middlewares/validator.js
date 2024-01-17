@@ -45,7 +45,9 @@ class Validator {
             aboutCompany: VALIDATIONS.STRING_REQUIRED,
             empCount: VALIDATIONS.NUMBER_REQUIRED,
             workPlace: VALIDATIONS.STRING_REQUIRED,
-            image: VALIDATIONS.STRING_REQUIRED
+            image: VALIDATIONS.STRING_REQUIRED,
+            branchOffice: VALIDATIONS.STRING,
+            corporateOffice: VALIDATIONS.STRING
         });
         return schema.validate(params);
     }

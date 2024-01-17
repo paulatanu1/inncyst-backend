@@ -48,7 +48,9 @@ const companyQuestions = async (req, res) => {
     aboutCompany: body.aboutCompany,
     empCount: body.empCount,
     workPlace: body.workPlace,
-    status: true
+    status: true,
+    branchOffice: body.branchOffice,
+    corporateOffice: body.corporateOffice
   });
   const saveQuestions = await questions.save();
   if (saveQuestions) {

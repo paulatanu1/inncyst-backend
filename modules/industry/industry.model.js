@@ -10,6 +10,8 @@ const industrySchema = Schema({
     workPlace: {type: String, required: true},
     image: { type: String, required: true },
     status: { type: Boolean, required: true },
+    branchOffice: { type: String },
+    corporateOffice: { type: String },
     createdAt: {
         type: Date,
         default: Date.now,
