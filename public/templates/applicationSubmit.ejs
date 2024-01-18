@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Congratulations on Your Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #3498db;
+        }
+
+        p {
+            line-height: 1.6;
+        }
+
+        .details {
+            margin-top: 20px;
+        }
+
+        .details p {
+            margin: 5px 0;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            background-color: #3498db;
+            color: #fff;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #2980b9;
+        }
+
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #777;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Congratulations!</h1>
+        <p>We are thrilled to inform you that your application for the <%= industryData.type%> with <%= industryData.company.companyName%> on Inncyst.com has been successfully received and accepted.</p>
+        <div class="details">
+            <p><strong>Position:</strong> <%= industryData.type%></p>
+            <p><strong>Company:</strong> <%= industryData.company.companyName%></p>
+            <p><strong>Application ID:</strong><%= student._id%></p>
+        </div>
+        <p>Our team will now review your application, and if your profile matches the requirements, you may be contacted for further steps in the recruitment process.</p>
+        <p>Thank you for choosing Inncyst.com to kickstart your career journey. We wish you the best of luck in the selection process!</p>
+        <p>If you have any questions or need further assistance, feel free to reach out to our support team at <a href="mailto:contactus@innovcatalyst.in" class="button">contactus@innovcatalyst.in</a></p>
+        <footer>
+            <p>Best regards,<br>Inncyst Team</p>
+        </footer>
+    </div>
+</body>
+
+</html>

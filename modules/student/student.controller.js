@@ -106,6 +106,7 @@ const studentController = {
         message: "Already applied for this job",
       });
     }
+    const industryData = await industry.findById(body.jobId).populate('company');
     check.studentName = user.name;
     check.email = body.email;
     check.phone = body.phone;
@@ -115,6 +116,7 @@ const studentController = {
       check.availability_message = body.availability_message;
     }
     const saveData = await check.save();
+    sendapplicationmail(user, industryData, saveData)
     return res.status(200).json({
       success: true,
       data: saveData,
@@ -203,5 +205,25 @@ const studentController = {
     });
   },
 };
+
+const sendapplicationmail = async (user, industryData, saveData) => {
+  try {
+    const mailOptions = {
+      subject: `Application Successful - ${industryData.company.companyName}`,
+      email: user.email,
+      data: {
+        user: user,
+        industryData: industryData,
+        student: saveData
+      },
+      template: "templates/applicationSubmit.ejs",
+    };
+    const nodeMailer = new NodeMailer(mailOptions);
+    await nodeMailer.sentMail();
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+}
 
 module.exports = studentController;

@@ -42,13 +42,12 @@ const register = async (req, res) => {
   });
   const savedUser = await saveAuthData.save();
   sendOtp(savedUser);
-  // const verify_token = jwt.sign(
-  //   { _id: savedUser._id, email: savedUser.email },
-  //   process.env.JWT_SECRET,
-  //   {
-  //     expiresIn: "2h",
-  //   }
-  // );
+  if (savedUser.role === 'student') {
+    sendstudentWellcomemail(savedUser);
+  }
+  if (savedUser.role === 'industry') {
+    sendCompanyWellcomemail(savedUser);
+  }
   setTimeout(() => {
     otpModel
       .findOneAndUpdate(
@@ -424,10 +423,11 @@ const sendOtp = async (user) => {
     });
     await saveOtp.save();
     const mailOptions = {
-      subject: "ACCOUNT VERIFICATION",
+      subject: " Inncyst.com Email Verification - Your One-Time Passcode (OTP)",
       email: user.email,
       data: {
         otp: saveOtp,
+        user: user
       },
       template: "templates/email-innov.ejs",
     };
@@ -462,6 +462,42 @@ const sendOtpEmal = async (user) => {
     await nodeMailer.sentMail();
     const dd = await sendSMS();
     console.log(dd, "-------");
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+const sendstudentWellcomemail = async (user) => {
+  try {
+    const mailOptions = {
+      subject: "Welcome to Inncyst - Empowering Your Career Journey!",
+      email: user.email,
+      data: {
+        user: user,
+      },
+      template: "templates/wellcome_student.ejs",
+    };
+    const nodeMailer = new NodeMailer(mailOptions);
+    await nodeMailer.sentMail();
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+const sendCompanyWellcomemail = async (user) => {
+  try {
+    const mailOptions = {
+      subject: "Welcome to Inncyst.com  - Unlocking Access to Tomorrow's Talent",
+      email: user.email,
+      data: {
+        user: user,
+      },
+      template: "templates/wellcome-company.ejs",
+    };
+    const nodeMailer = new NodeMailer(mailOptions);
+    await nodeMailer.sentMail();
   } catch (error) {
     console.log(error);
     return error;
