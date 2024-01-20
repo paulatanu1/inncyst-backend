@@ -9,6 +9,7 @@ const studentSchema = Schema({
   resume: { type: String, required: true },
   availability: { type: Number, default: 1 },
   status: { type: Boolean, default: false },
+  applicationId: { type: String, required: true },
   applicationStatus: {
     type: String,
     enum: [

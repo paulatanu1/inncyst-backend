@@ -7,6 +7,7 @@ const path = require("path");
 const { PDFDocument } = require('pdf-lib');
 const portfolioModel = require('../auth/portfolio.model');
 const { NodeMailer } = require("../../config/Mailer");
+const uuid = require('uuid');
 
 const studentController = {
   uploadResumeDemo: async (req, res) => {
@@ -112,6 +113,7 @@ const studentController = {
     check.email = body.email;
     check.phone = body.phone;
     check.status = true;
+    check.applicationId = generateCustomId;
     check.availability = body.availability;
     if (body.availability === 1) {
       check.availability_message = body.availability_message;
@@ -225,6 +227,15 @@ const sendapplicationmail = async (user, industryData, saveData) => {
     console.log(error);
     return error;
   }
+}
+
+// student application id
+let counter = 1;
+function generateCustomId() {
+    const currentDate = moment().format('YYYYMMDD');
+    const customId = `${currentDate}-${counter}`;
+    counter++;
+    return customId;
 }
 
 module.exports = studentController;

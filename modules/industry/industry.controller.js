@@ -10,6 +10,7 @@ const studentModel = require("../student/student.model");
 const USERTYPES = require('../common/userType');
 const jwt = require('jsonwebtoken');
 const portfolioModel = require('../auth/portfolio.model');
+const { NodeMailer } = require("../../config/Mailer");
 
 const companyQuestions = async (req, res) => {
   const { user, body, params } = req;
@@ -53,6 +54,7 @@ const companyQuestions = async (req, res) => {
     corporateOffice: body.corporateOffice
   });
   const saveQuestions = await questions.save();
+  sendCompanyWellcomemail(user, saveQuestions);
   if (saveQuestions) {
     await authModel.findOneAndUpdate(
       { _id: user._id },
@@ -539,6 +541,25 @@ const appliedStudentDetails = async (req, res) => {
     });
   }
 }
+
+const sendCompanyWellcomemail = async (user, saveQuestions) => {
+  try {
+    const mailOptions = {
+      subject: "Welcome to Inncyst.com  - Unlocking Access to Tomorrow's Talent",
+      email: user.email,
+      data: {
+        user: user,
+        company: saveQuestions
+      },
+      template: "templates/wellcome-company.ejs",
+    };
+    const nodeMailer = new NodeMailer(mailOptions);
+    await nodeMailer.sentMail();
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
 
 module.exports = {
   companyQuestions,

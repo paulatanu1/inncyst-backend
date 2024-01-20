@@ -45,9 +45,9 @@ const register = async (req, res) => {
   if (savedUser.role === 'student') {
     sendstudentWellcomemail(savedUser);
   }
-  if (savedUser.role === 'industry') {
-    sendCompanyWellcomemail(savedUser);
-  }
+  // if (savedUser.role === 'industry') {
+  //   sendCompanyWellcomemail(savedUser);
+  // }
   setTimeout(() => {
     otpModel
       .findOneAndUpdate(
@@ -486,23 +486,23 @@ const sendstudentWellcomemail = async (user) => {
   }
 };
 
-const sendCompanyWellcomemail = async (user) => {
-  try {
-    const mailOptions = {
-      subject: "Welcome to Inncyst.com  - Unlocking Access to Tomorrow's Talent",
-      email: user.email,
-      data: {
-        user: user,
-      },
-      template: "templates/wellcome-company.ejs",
-    };
-    const nodeMailer = new NodeMailer(mailOptions);
-    await nodeMailer.sentMail();
-  } catch (error) {
-    console.log(error);
-    return error;
-  }
-};
+// const sendCompanyWellcomemail = async (user) => {
+//   try {
+//     const mailOptions = {
+//       subject: "Welcome to Inncyst.com  - Unlocking Access to Tomorrow's Talent",
+//       email: user.email,
+//       data: {
+//         user: user,
+//       },
+//       template: "templates/wellcome-company.ejs",
+//     };
+//     const nodeMailer = new NodeMailer(mailOptions);
+//     await nodeMailer.sentMail();
+//   } catch (error) {
+//     console.log(error);
+//     return error;
+//   }
+// };
 
 const uploadPortfolio = async (req, res) => {
   const { user, files, body } = req;
