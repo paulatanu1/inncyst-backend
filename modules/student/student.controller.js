@@ -113,7 +113,7 @@ const studentController = {
     check.email = body.email;
     check.phone = body.phone;
     check.status = true;
-    check.applicationId = generateCustomId;
+    check.applicationId = generateCustomId();
     check.availability = body.availability;
     if (body.availability === 1) {
       check.availability_message = body.availability_message;
