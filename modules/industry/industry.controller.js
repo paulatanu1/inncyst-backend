@@ -402,7 +402,7 @@ const updateStatus = async (req, res) => {
   const { params, body } = req;
   const filter = { _id: params.id };
   const checkActiveStatus = await postModel.findOne(filter);
-  if (checkActiveStatus.status === body.status) {
+  if (checkActiveStatus.status === JSON.parse(body.status)) {
     const message = body.status
       ? "Post Already Published"
       : "Post Unpublished";
