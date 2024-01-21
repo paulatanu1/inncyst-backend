@@ -110,11 +110,12 @@ const studentController = {
       });
     }
     const industryData = await industry.findById(body.jobId).populate('company');
+    const countStudentData = await student.find();
     check.studentName = user.name;
     check.email = body.email;
     check.phone = body.phone;
     check.status = true;
-    check.applicationId = generateCustomId();
+    check.applicationId = generateCustomId(countStudentData.length + 1);
     check.availability = body.availability;
     if (body.availability === 1) {
       check.availability_message = body.availability_message;
@@ -231,11 +232,9 @@ const sendapplicationmail = async (user, industryData, saveData) => {
 }
 
 // student application id
-let counter = 1;
-function generateCustomId() {
+function generateCustomId(counter) {
     const currentDate = moment().format('YYYYMMDD');
     const customId = `${currentDate}-${counter}`;
-    counter++;
     return customId;
 }
 
