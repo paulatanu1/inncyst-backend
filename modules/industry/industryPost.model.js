@@ -3,6 +3,7 @@ const { Schema, model } = require("mongoose");
 const industrySchema = Schema({
   industryId: { type: Schema.Types.ObjectId, ref: "Auth" },
   company: {type: Schema.Types.ObjectId, ref: "industry" },
+  title: { type: String },
   type: { type: String, enum: ["intranship", "job"] },
   details: { type: String, default: null },
   skills: [],
