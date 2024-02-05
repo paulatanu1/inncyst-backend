@@ -93,6 +93,7 @@ class Validator {
     static industryPostIntranship(params) {
         const schema = Joi.object().keys({
             id: VALIDATIONS.STRING,
+            title: VALIDATIONS.STRING_REQUIRED,
             type: VALIDATIONS.STRING_REQUIRED,
             skills: VALIDATIONS.ARRAY_REQUIRED,
             details: VALIDATIONS.STRING_REQUIRED,
@@ -118,6 +119,7 @@ class Validator {
     static industryPostJob(params) {
         const schema = Joi.object().keys({
             id: VALIDATIONS.STRING,
+            title: VALIDATIONS.STRING_REQUIRED,
             type: VALIDATIONS.STRING_REQUIRED,
             skills: VALIDATIONS.ARRAY_REQUIRED,
             details: VALIDATIONS.STRING_REQUIRED,
