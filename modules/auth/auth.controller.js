@@ -3,6 +3,8 @@ const { mongoose } = require("mongoose");
 const jwt = require("jsonwebtoken");
 const authModel = require("./auth.model");
 const portfolioModel = require("./portfolio.model");
+const userEducation = require("./user.education.model");
+const userWorkExperience = require("./user.workexp.model");
 const otpModel = require("./otp.model");
 const { transporter } = require("../../config/email");
 const { generateOtp } = require("../../config/otp");
@@ -83,7 +85,7 @@ const profile = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  const { email, password, role } = req.body;
+  const { email, password } = req.body;
   const { error } = loginRequests(req.body);
   if (error) {
     return res.status(400).json({
@@ -92,7 +94,7 @@ const login = async (req, res) => {
       data: null,
     });
   }
-  const user = await authModel.findOne({ email, role }).select("+password");
+  const user = await authModel.findOne({ email }).select("+password");
   if (!user) {
     return res.status(400).json({
       success: false,
@@ -121,7 +123,7 @@ const login = async (req, res) => {
     return res.status(200).json({
       success: true,
       messege: "Logged in successfully",
-      LOGIN_TYPE: role,
+      LOGIN_TYPE: user.role,
       data: user,
       token: token_jwt,
     });
@@ -134,20 +136,74 @@ const login = async (req, res) => {
 };
 
 const getMe = async (req, res) => {
-  const { user } = req;
-  const userData = await authModel.findById(user._id);
-  return res.status(200).json({
-    success: true,
-    data: userData,
-    message: "",
-  });
+  try {
+    const { user } = req;
+    const userData = await authModel.findById(user._id).lean();
+    const edc = await userEducation.findOne({ user: user._id });
+    const exp = await userWorkExperience.findOne({ user: user._id });
+    if (userData && userData.role === "student") {
+      userData.education = edc ? edc : null;
+      userData.expireance = exp ? exp : null;
+    }
+    return res.status(200).json({
+      success: true,
+      data: userData,
+      message: "",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      data: {},
+      message: "Server error",
+    });
+  }
+  
 };
 
 const editProfile = async (req, res) => {
   const { user, body } = req;
-  const userData = await authModel.findOneAndUpdate({ _id: user._id }, body, {
+  const userData = await authModel.findOneAndUpdate({ _id: user._id }, {
+    name: body.name,
+    email: body.email,
+    phone: body.phone,
+    location: body.location,
+    description: body.description
+  }, {
     new: true,
   });
+  if (body.education) {
+    const education = await userEducation.findOne({ user: user._id });
+    if (education) {
+      education.className = body.education.className;
+      education.board = body.education.board;
+      await education.save();
+    } else {
+      const newEducationData = new userEducation();
+      newEducationData.className = body.education.className;
+      newEducationData.board = body.education.board;
+      newEducationData.user = user._id;
+      await newEducationData.save();
+    }
+  }
+  if (body.workExperience) {
+    const workexp = await userWorkExperience.findOne({ user: user._id });
+    if (workexp) {
+      workexp.designation = body.workExperience.designation;
+      workexp.companyName = body.workExperience.companyName;
+      workexp.duration = body.workExperience.duration;
+      workexp.description = body.workExperience.description;
+      await workexp.save();
+    } else {
+      const newWorkExperienceData = new userWorkExperience({
+        designation: body.workExperience.designation,
+        companyName: body.workExperience.companyName,
+        duration: body.workExperience.duration,
+        description: body.workExperience.description,
+        user: user._id
+      });
+      await newWorkExperienceData.save();
+    }
+  }
   if (userData) {
     return res.status(200).json({
       success: true,

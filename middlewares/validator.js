@@ -32,8 +32,7 @@ class Validator {
     static loginRequests(params) {
         const schema = Joi.object().keys({
             email: VALIDATIONS.EMAIL,
-            password: VALIDATIONS.PASSWORD,
-            role: VALIDATIONS.STRING_REQUIRED
+            password: VALIDATIONS.PASSWORD
         });
         return schema.validate(params);
     }
