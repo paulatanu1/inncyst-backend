@@ -146,8 +146,7 @@ class Validator {
 
     static contactUs(params) {
         const schema = Joi.object().keys({
-            firstName: VALIDATIONS.STRING_REQUIRED,
-            lastName: VALIDATIONS.STRING_REQUIRED,
+            name: VALIDATIONS.STRING_REQUIRED,
             email: VALIDATIONS.EMAIL,
             phone: VALIDATIONS.PHONE_NUMBER,
             message: VALIDATIONS.DESCRIPTION

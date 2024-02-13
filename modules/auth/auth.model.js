@@ -44,6 +44,13 @@ const authSchema = Schema({
       location: { type: String, default: null, maxlength: 50 },
       skills: [],
       status: { type: Boolean, default: true },
+      dob: { type: String, default: null },
+      areaOfInterest: { type: String, default: null },
+      branch: { type: String, default: null },
+      gender: { type: String, enum: ['male', 'female', 'others'], default: null },
+      institution: { type: String, default: null },
+      semester: { type: String, default: null },
+      stream: { type: String, default: null },
       resetPasswordToken: String,
       resetPasswordExpire: Date,
       createdAt: {

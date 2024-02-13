@@ -9,6 +9,7 @@ const portfolioModel = require('../auth/portfolio.model');
 const { NodeMailer } = require("../../config/Mailer");
 const uuid = require('uuid');
 const moment = require('moment');
+const userResume = require('./studentResume.model')
 
 const studentController = {
   uploadResumeDemo: async (req, res) => {
@@ -17,18 +18,8 @@ const studentController = {
     if (!base64Data) {
       return res.status(400).json({ error: "No base64 data provided" });
     }
-    // const filepath = __dirname + "/../../public/user-resume/";
-    // if (!fs.existsSync(filepath)) {
-    //   fs.mkdirSync(filepath);
-    // }
-    // const fileName = `PDF_${user._id}.pdf`;
-    // const resultfile = filepath + fileName;
-    // const fileBuffer = Buffer.from(base64Data.split(',')[1], 'base64');
-    // const fileBuffer = Buffer.from(base64Data, 'base64');
-    // fs.writeFileSync(path.join(resultfile), fileBuffer);
     const savedData = await student.create({
       userId: user._id,
-      // resume: `/user-resume/${fileName}`,
       resume: base64Data,
       jobId: body.jobId,
     });
@@ -209,6 +200,114 @@ const studentController = {
       message: "success",
     });
   },
+
+  // student resume data
+  addUserResume: async (req, res) => {
+    try {
+      const { user, body } = req;
+      if (!body.resume) {
+        return res.status(400).json({
+          success: false,
+          data: {},
+          message: "Please enter a resume"
+        });
+      }
+      const filter = { user: user._id, deletedAt: null, status: true };
+      const foundData = await userResume.findOne(filter);
+      if (foundData) {
+        return res.status(400).json({
+          success: false,
+          data: {},
+          message: "Resume already exists"
+        });
+      }
+      const saveData = await userResume.create({
+        user: user._id,
+        resume: body.resume
+      });
+      if (saveData) {
+        return res.status(200).json({
+          success: true,
+          data: saveData,
+          message: "Resume upload successfully"
+        });
+      }
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        data: {},
+        message: "Server error"
+      });
+    }
+  },
+
+  updateUserResume: async (req, res) => {
+    try {
+      const { user, body, params } = req;
+      const foundData = await userResume.findOne({ _id: params.id, user: user._id });
+      if (!foundData) {
+        return res.status(400).json({
+          success: false,
+          data: {},
+          message: "Resume not found"
+        });
+      }
+      const updateResume = await userResume.findOneAndUpdate({
+        _id: params.id
+      }, { resume: body.resume }, { new: true });
+      return res.status(200).json({
+        success: true,
+        data: updateResume,
+        message: "Resume update successfully"
+      });
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        data: {},
+        message: "Server error"
+      });
+    }
+  },
+  getUserResume: async (req, res) => {
+    try {
+      const { user } = req;
+      const filter = { deletedAt: null, status: true, user: user._id };
+      const data = await userResume.find(filter);
+      return res.status(200).json({
+        success: true,
+        data,
+        message: "Resume"
+      });
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        data: {},
+        message: "Server error"
+      });
+    }
+  },
+  deleteUserResume: async (req, res) => {
+    try {
+      const { user, params } = req;
+      const responseData = await userResume.findOne({ _id: params.id });
+      if (responseData) {
+        responseData.status = false;
+        responseData.deletedAt = new Date();
+        await responseData.save();
+      }
+      return res.status(200).json({
+        success: true,
+        data,
+        message: "Resume deleted successfully"
+      });
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        data: {},
+        message: "Server error"
+      });
+    }
+  }
 };
 
 const sendapplicationmail = async (user, industryData, saveData) => {

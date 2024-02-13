@@ -3,8 +3,6 @@ const { mongoose } = require("mongoose");
 const jwt = require("jsonwebtoken");
 const authModel = require("./auth.model");
 const portfolioModel = require("./portfolio.model");
-const userEducation = require("./user.education.model");
-const userWorkExperience = require("./user.workexp.model");
 const otpModel = require("./otp.model");
 const { transporter } = require("../../config/email");
 const { generateOtp } = require("../../config/otp");
@@ -12,11 +10,11 @@ const { sendSMS } = require("../../config/fast2sms");
 const { NodeMailer } = require("../../config/Mailer");
 const fs = require("fs");
 const path = require("path");
-const { response } = require("express");
 const {
   registratonRequest,
   loginRequests,
 } = require("../../middlewares/validator");
+const userResume = require('../student/studentResume.model');
 
 const register = async (req, res) => {
   const { role, name, email, phone, password } = req.body;
@@ -139,12 +137,8 @@ const getMe = async (req, res) => {
   try {
     const { user } = req;
     const userData = await authModel.findById(user._id).lean();
-    const edc = await userEducation.findOne({ user: user._id });
-    const exp = await userWorkExperience.findOne({ user: user._id });
-    if (userData && userData.role === "student") {
-      userData.education = edc ? edc : null;
-      userData.expireance = exp ? exp : null;
-    }
+    const resume = await userResume.findOne({ user: userData._id, deletedAt: null, status: true });
+    userData.resume = resume ? resume : null;
     return res.status(200).json({
       success: true,
       data: userData,
@@ -157,53 +151,13 @@ const getMe = async (req, res) => {
       message: "Server error",
     });
   }
-  
 };
 
 const editProfile = async (req, res) => {
   const { user, body } = req;
-  const userData = await authModel.findOneAndUpdate({ _id: user._id }, {
-    name: body.name,
-    email: body.email,
-    phone: body.phone,
-    location: body.location,
-    description: body.description
-  }, {
+  const userData = await authModel.findOneAndUpdate({ _id: user._id }, body, {
     new: true,
   });
-  if (body.education) {
-    const education = await userEducation.findOne({ user: user._id });
-    if (education) {
-      education.className = body.education.className;
-      education.board = body.education.board;
-      await education.save();
-    } else {
-      const newEducationData = new userEducation();
-      newEducationData.className = body.education.className;
-      newEducationData.board = body.education.board;
-      newEducationData.user = user._id;
-      await newEducationData.save();
-    }
-  }
-  if (body.workExperience) {
-    const workexp = await userWorkExperience.findOne({ user: user._id });
-    if (workexp) {
-      workexp.designation = body.workExperience.designation;
-      workexp.companyName = body.workExperience.companyName;
-      workexp.duration = body.workExperience.duration;
-      workexp.description = body.workExperience.description;
-      await workexp.save();
-    } else {
-      const newWorkExperienceData = new userWorkExperience({
-        designation: body.workExperience.designation,
-        companyName: body.workExperience.companyName,
-        duration: body.workExperience.duration,
-        description: body.workExperience.description,
-        user: user._id
-      });
-      await newWorkExperienceData.save();
-    }
-  }
   if (userData) {
     return res.status(200).json({
       success: true,

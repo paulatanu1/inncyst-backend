@@ -1,8 +1,7 @@
 const { Schema, model } = require("mongoose");
 
 const contactUsSchema = Schema({
-  firstName: { type: String, require: [true, "firstName is required"] },
-  lastName: { type: String, require: [true, "lastName is required"] },
+  name: { type: String, require: [true, "Name is required"] },
   email: {
     type: String,
     lowercase: true,
