@@ -155,27 +155,42 @@ const getMe = async (req, res) => {
 
 const editProfile = async (req, res) => {
   const { user, body } = req;
-
-  const currentDate = new Date();
-  const birthDate = new Date(body.dob);
-  let age = currentDate.getFullYear() - birthDate.getFullYear();
-  if (
-    currentDate.getMonth() < birthDate.getMonth() ||
-    (currentDate.getMonth() === birthDate.getMonth() &&
-      currentDate.getDate() < birthDate.getDate())
-  ) {
-    age--;
+  let age = 0;
+  if (body.dob) {
+    const currentDate = new Date();
+    const birthDate = new Date(body.dob);
+    age = currentDate.getFullYear() - birthDate.getFullYear();
+    if (
+      currentDate.getMonth() < birthDate.getMonth() ||
+      (currentDate.getMonth() === birthDate.getMonth() &&
+        currentDate.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
   }
-
   body.age = age;
-  const userData = await authModel.findOneAndUpdate({ _id: user._id }, body, {
-    new: true,
-  });
-  if (userData) {
-    return res.status(200).json({
-      success: true,
-      message: "Profile update successfully",
-      data: userData,
+  try {
+    const userData = await authModel.findOneAndUpdate({ _id: user._id }, body, {
+      new: true,
+    });
+
+    if (userData) {
+      return res.status(200).json({
+        success: true,
+        message: "Profile updated successfully",
+        data: userData,
+      });
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while updating profile",
+      error: error.message,
     });
   }
 };
