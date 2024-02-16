@@ -155,6 +155,19 @@ const getMe = async (req, res) => {
 
 const editProfile = async (req, res) => {
   const { user, body } = req;
+
+  const currentDate = new Date();
+  const birthDate = new Date(body.dob);
+  let age = currentDate.getFullYear() - birthDate.getFullYear();
+  if (
+    currentDate.getMonth() < birthDate.getMonth() ||
+    (currentDate.getMonth() === birthDate.getMonth() &&
+      currentDate.getDate() < birthDate.getDate())
+  ) {
+    age--;
+  }
+
+  body.age = age;
   const userData = await authModel.findOneAndUpdate({ _id: user._id }, body, {
     new: true,
   });
@@ -350,6 +363,7 @@ const resetEmailOtp = async (req, res) => {
   //   : "";
   // const auth = jwt.verify(token, process.env.JWT_SECRET);
   const otpEmail = generateOtp();
+  const auth = await authModel.findOne({ _id: req.body.id });
   const otpData = await otpModel.findOne({ userId: req.body.id });
   if (otpData) {
     otpData.emailOtp = otpEmail;
@@ -388,6 +402,7 @@ const resetPhoneOtp = async (req, res) => {
   //   : "";
   // const auth = jwt.verify(token, process.env.JWT_SECRET);
   const otpPhone = generateOtp();
+  const auth = await authModel.findOne({ _id: req.body.id });
   const otpData = await otpModel.findOne({ userId: req.body.id });
   if (otpData) {
     otpData.phoneOtp = otpPhone;

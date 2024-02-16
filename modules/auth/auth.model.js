@@ -45,6 +45,7 @@ const authSchema = Schema({
       skills: [],
       status: { type: Boolean, default: true },
       dob: { type: String, default: null },
+      age: { type: Number, default: null },
       areaOfInterest: { type: String, default: null },
       branch: { type: String, default: null },
       gender: { type: String, enum: ['male', 'female', 'others'], default: null },
