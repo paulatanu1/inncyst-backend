@@ -12,7 +12,7 @@ studentRouter.get('/job/:id', authenticated, studentController.getById);
 // User Resume Form
 studentRouter.post('/user-resume', authenticated, studentController.addUserResume);
 studentRouter.get('/user-resume', authenticated, studentController.getUserResume);
-studentRouter.patch('/user-resume/:id', authenticated, studentController.updateUserResume);
+studentRouter.put('/user-resume/:id', authenticated, studentController.updateUserResume);
 studentRouter.delete('/user-resume/:id', authenticated, studentController.deleteUserResume);
 
 module.exports = studentRouter;

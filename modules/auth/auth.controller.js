@@ -377,38 +377,45 @@ const resetEmailOtp = async (req, res) => {
   //   ? req.headers.authorization.split(" ")[1]
   //   : "";
   // const auth = jwt.verify(token, process.env.JWT_SECRET);
-  const otpEmail = generateOtp();
-  const auth = await authModel.findOne({ _id: req.body.id });
-  const otpData = await otpModel.findOne({ userId: req.body.id });
-  if (otpData) {
-    otpData.emailOtp = otpEmail;
-    await otpData.save();
+  try {
+    const otpEmail = generateOtp();
+    const auth = await authModel.findOne({ _id: req.body.id });
+    const otpData = await otpModel.findOne({ userId: req.body.id });
+    if (otpData) {
+      otpData.emailOtp = otpEmail;
+      await otpData.save();
+    }
+    const mailOptions = {
+      subject: "RESEND OTP FOR EMAIL",
+      email: auth.email,
+      data: {
+        otp: otpData,
+      },
+      template: "templates/resend-email-otp.ejs",
+    };
+    const nodeMailer = new NodeMailer(mailOptions);
+    const dd = await nodeMailer.sentMail();
+
+    setTimeout(() => {
+      otpModel
+        .findOneAndUpdate(
+          { userId: req.body.id },
+          { emailOtp: null, phoneOtp: null },
+          { new: true }
+        )
+        .then((val) => console.log(val));
+    }, 60000 * 5);
+
+    return res.status(200).json({
+      success: true,
+      message: "Otp send successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
-  const mailOptions = {
-    subject: "RESEND OTP FOR EMAIL",
-    email: auth.email,
-    data: {
-      otp: otpData,
-    },
-    template: "templates/resend-email-otp.ejs",
-  };
-  const nodeMailer = new NodeMailer(mailOptions);
-  const dd = await nodeMailer.sentMail();
-
-  setTimeout(() => {
-    otpModel
-      .findOneAndUpdate(
-        { userId: req.body.id },
-        { emailOtp: null, phoneOtp: null },
-        { new: true }
-      )
-      .then((val) => console.log(val));
-  }, 60000 * 5);
-
-  return res.status(200).json({
-    success: true,
-    message: "Otp send successfully",
-  });
 };
 
 const resetPhoneOtp = async (req, res) => {
