@@ -2,14 +2,15 @@ const student = require("../student/student.model");
 const intranship = require("../intranship/intranship.model");
 const industry = require("../industry/industryPost.model");
 const fs = require("fs");
-const { applyForIntranship } = require("../../middlewares/validator");
+const { addAchivementBody } = require("../../middlewares/validator");
 const path = require("path");
 const { PDFDocument } = require('pdf-lib');
 const portfolioModel = require('../auth/portfolio.model');
 const { NodeMailer } = require("../../config/Mailer");
 const uuid = require('uuid');
 const moment = require('moment');
-const userResume = require('./studentResume.model')
+const userResume = require('./studentResume.model');
+const achivement = require('./studentAchivement.model');
 
 const studentController = {
   uploadResumeDemo: async (req, res) => {
@@ -299,6 +300,146 @@ const studentController = {
         success: true,
         data,
         message: "Resume deleted successfully"
+      });
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        data: {},
+        message: "Server error"
+      });
+    }
+  },
+
+  // Student Achivement
+  addAchivement: async (req, res) => {
+    const { body, user } = req;
+    try {
+      const achivementData = await achivement.find().countDocuments();
+      const rendomId = `ACH-${achivementData+1}`;
+      const { error } = addAchivementBody(body);
+      if (error) {
+        return res.status(400).json({
+          success: false,
+          data: {},
+          message: error.message
+        });
+      }
+      const savedAchivementData = new achivement();
+      savedAchivementData.id = rendomId;
+      savedAchivementData.user = user._id;
+      savedAchivementData.title = body.title;
+      savedAchivementData.description = body.description;
+      savedAchivementData.date = body.date;
+      savedAchivementData.held = body.held;
+      const savedData = await savedAchivementData.save();
+      if (savedData) {
+        return res.status(200).json({
+          success: true,
+          data: savedData,
+          message: "Data saved successfully"
+        });
+      }
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        data: {},
+        message: "Server error"
+      });
+    } 
+  },
+  achivementlist: async (req, res) => {
+    const { body, user } = req;
+    try {
+      const filter = { user: user._id, deletedAt: null };
+      const listData = await achivement.find(filter);
+      return res.status(200).json({
+        success: true,
+        data: listData,
+        message: ""
+      });
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        data: {},
+        message: "Server error"
+      });
+    } 
+  },
+  achivementById: async (req, res) => {
+    try {
+      const { params, user } = req;
+      const filter = {
+        id: params.id,
+        user: user._id
+      }
+      const getById = await achivement.findOne(filter);
+      if (!getById) {
+        return res.status(400).json({
+          success: false,
+          data: {},
+          message: "No data found"
+        });
+      }
+      return res.status(200).json({
+        success: true,
+        data: getById,
+        message: ""
+      });
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        data: {},
+        message: "Server error"
+      });
+    }
+  },
+  achivementEdit: async (req, res) => {
+    try {
+      const { params, user, body } = req;
+      const filter = {
+        id: params.id,
+        user: user._id
+      };
+      const editData = await achivement.findOneAndUpdate(
+        filter,
+        body,
+        { new: true },
+      );
+      return res.status(200).json({
+        success: true,
+        data: editData,
+        message: "Edit succesfully"
+      });
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        data: {},
+        message: "Server error"
+      });
+    }
+  },
+  achivementDelete: async (req, res) => {
+    try {
+      const { params, user } = req;
+      const filter = {
+        id: params.id,
+        user: user._id
+      }
+      const getById = await achivement.findOne(filter);
+      if (!getById) {
+        return res.status(400).json({
+          success: false,
+          data: {},
+          message: "No data found"
+        });
+      }
+      getById.deletedAt = new Date();
+      getById.status = false;
+      await getById.save();
+      return res.status(200).json({
+        success: true,
+        data: getById,
+        message: "Deleted succesfully"
       });
     } catch (error) {
       return res.status(400).json({

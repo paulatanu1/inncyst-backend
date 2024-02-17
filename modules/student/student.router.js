@@ -15,4 +15,11 @@ studentRouter.get('/user-resume', authenticated, studentController.getUserResume
 studentRouter.put('/user-resume/:id', authenticated, studentController.updateUserResume);
 studentRouter.delete('/user-resume/:id', authenticated, studentController.deleteUserResume);
 
+// Student Achivement routes
+studentRouter.post('/student-achivement', authenticated, studentController.addAchivement);
+studentRouter.get('/student-achivement', authenticated, studentController.achivementlist);
+studentRouter.get('/student-achivement/:id', authenticated, studentController.achivementById);
+studentRouter.put('/student-achivement/:id', authenticated, studentController.achivementEdit);
+studentRouter.delete('/student-achivement/:id', authenticated, studentController.achivementDelete);
+
 module.exports = studentRouter;

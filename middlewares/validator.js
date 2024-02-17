@@ -153,6 +153,16 @@ class Validator {
         });
         return schema.validate(params);
     }
+
+    static addAchivementBody(params) {
+        const schema = Joi.object().keys({
+            title: VALIDATIONS.STRING_REQUIRED,
+            description: VALIDATIONS.STRING_REQUIRED,
+            date: VALIDATIONS.STRING_REQUIRED,
+            held: VALIDATIONS.STRING_REQUIRED
+        });
+        return schema.validate(params);
+    }
 }
 
 module.exports = Validator;
