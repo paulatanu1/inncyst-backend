@@ -553,29 +553,45 @@ const sendstudentWellcomemail = async (user) => {
 
 const uploadPortfolio = async (req, res) => {
   const { user, files, body } = req;
+
+  console.log(req, files, body, "----")
+  
   const dir = __dirname + "/../../public/user-portfolio/";
-  const checkPortFolio = await portfolioModel.find({ user: user._id });
-  if (checkPortFolio.length === 5) {
-    return res.status(400).json({
-      success: false,
-      data: {},
-      message: "Maximum limit reached (maximum is 5).",
-    });
-  }
   let portfolio;
   let portfolioData = {
     user: user._id,
     title: body.title,
     description: body.description,
+    area: body.area,
+    organisation: body.organisation,
+    keyword: body.keyword,
+    patent: body.patent,
     youtubeUrl: body.youtubeUrl,
-    portfolioStatus: body.portfolioStatus
+    selectedItem: body.selectedItem
   };
 
   if (body.url) {
     portfolioData.url = body.url;
-  }
-  if (body.youtubeUrl) {
-    portfolioData.youtubeUrl = body.youtubeUrl;
+    // try {
+    //   const portfolioData = {
+    //     user: user._id,
+    //     title: body.title,
+    //     description: body.description,
+    //     url: body.url,
+    //   };
+    //   portfolio = await portfolioModel.create(portfolioData);
+    //   return res.status(200).json({
+    //     success: true,
+    //     data: portfolio,
+    //     message: "portfolio created successfully",
+    //   });
+    // } catch (error) {
+    //   return res.status(500).json({
+    //     success: false,
+    //     data: {},
+    //     message: `Error while saving`,
+    //   });
+    // }
   }
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
@@ -632,42 +648,10 @@ const uploadPortfolio = async (req, res) => {
       message: `Portfolio uploaded successfully.`,
     });
   } catch (error) {
-    return res.status(400).json({
+    return res.status(500).json({
       success: false,
       data: {},
-      message: `Error while saving the Portfolio. ${error.message}`,
-    });
-  }
-};
-
-const getById = async (req, res) => {
-  const { params, user } = req;
-  try {
-    if (!mongoose.Types.ObjectId.isValid(params.id)) {
-      return res.status(400).json({
-        success: false,
-        data: null,
-        message: 'Invalid id provided'
-      });
-    }
-    const result = await portfolioModel.findOne({ _id: params.id, user: user._id });
-    if (!result) {
-      return res.status(400).json({
-        success: false,
-        data: {},
-        message: 'No data found'
-      });
-    }
-    return res.status(200).json({
-      success: true,
-      data: result,
-      message: 'Success'
-    });
-  } catch (error) {
-    return res.status(400).json({
-      success: false,
-      data: {},
-      message: `Error: ${error.message}`,
+      message: `Error while saving the Portfolio.`,
     });
   }
 };
@@ -676,19 +660,28 @@ const updatePortfolio = async (req, res) => {
   const { user, files, body, params } = req;
   const dir = __dirname + "/../../public/user-portfolio/";
   const portfolio = await portfolioModel.findOne({ _id: params.id });
+  // let portfolioData = {
+  //   user: user._id,
+  //   title: body.title,
+  //   description: body.description,
+  // };
+
   let portfolioData = {
     user: user._id,
     title: body.title,
     description: body.description,
-    portfolioStatus: body.portfolioStatus
+    area: body.area,
+    organisation: body.organisation,
+    keyword: body.keyword,
+    patent: body.patent,
+    youtubeUrl: body.youtubeUrl,
+    selectedItem: body.selectedItem
   };
 
   if (body.url) {
     portfolioData.url = body.url;
   }
-  if (body.youtubeUrl) {
-    portfolioData.youtubeUrl = body.youtubeUrl;
-  }
+
   if (files && files.pdf) {
     const pdfFile = files.pdf;
     if (pdfFile.size > 25000000) {
