@@ -566,8 +566,8 @@ const uploadPortfolio = async (req, res) => {
     organisation: body.organisation,
     keyword: body.keyword,
     patent: body.patent,
-    youtubeUrl: body.youtubeUrl,
-    selectedItem: body.selectedItem
+    selectedItem: body.selectedItem,
+    portfolioStatus: body.portfolioStatus
   };
 
   if (body.url) {
@@ -592,6 +592,9 @@ const uploadPortfolio = async (req, res) => {
     //     message: `Error while saving`,
     //   });
     // }
+  }
+  if (body.youtubeUrl) {
+    portfolioData.youtubeUrl = body.youtubeUrl;
   }
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
@@ -707,12 +710,16 @@ const updatePortfolio = async (req, res) => {
     organisation: body.organisation,
     keyword: body.keyword,
     patent: body.patent,
-    youtubeUrl: body.youtubeUrl,
-    selectedItem: body.selectedItem
+    selectedItem: body.selectedItem,
+    portfolioStatus: body.portfolioStatus
   };
 
   if (body.url) {
     portfolioData.url = body.url;
+  }
+
+  if (body.youtubeUrl) {
+    portfolioData.youtubeUrl = body.youtubeUrl;
   }
 
   if (files && files.pdf) {
