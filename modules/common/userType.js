@@ -8,7 +8,11 @@ const userType = {
   STUDENT: "student",
   INDUSTRY: "industry",
   EXPART: "expart",
-  MANUFACTURER: "manufacturer"
+  MANUFACTURING: "manufacturing",
+  CANDIDATE: "candidate",
+  MENTOR: "mentor",
+  LABORATORY: "laboratory",
+  EMPLOYER: "employer",
 };
 
 module.exports = userType;

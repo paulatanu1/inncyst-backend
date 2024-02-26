@@ -11,13 +11,16 @@ const {
   postDelete,
   updateStatusOfStudent,
   appliedStudentList,
-  appliedStudentDetails
+  appliedStudentDetails,
+  skillsList
 } = require("./industry.controller");
 const Authenticate = require("../../middlewares/isLoggedIn.middleware");
 
 // Industry Profile
 router.get("/profile", Authenticate, myProfile);
 
+// Skills list
+router.get("/skills", skillsList);
 
 // Job Management
 router.post("/industry-question/:id?", Authenticate, companyQuestions);

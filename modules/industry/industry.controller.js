@@ -11,6 +11,7 @@ const USERTYPES = require('../common/userType');
 const jwt = require('jsonwebtoken');
 const portfolioModel = require('../auth/portfolio.model');
 const { NodeMailer } = require("../../config/Mailer");
+const { skills } = require('../../config/constants');
 
 const companyQuestions = async (req, res) => {
   const { user, body, params } = req;
@@ -542,6 +543,13 @@ const appliedStudentDetails = async (req, res) => {
   }
 }
 
+const skillsList = async (req, res) => {
+  return res.status(200).json({
+    success: true,
+    result: skills
+  })
+};
+
 const sendCompanyWellcomemail = async (user, saveQuestions) => {
   try {
     const mailOptions = {
@@ -573,5 +581,6 @@ module.exports = {
   postDelete,
   updateStatusOfStudent,
   appliedStudentList,
-  appliedStudentDetails
+  appliedStudentDetails,
+  skillsList
 };
