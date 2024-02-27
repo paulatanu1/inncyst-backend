@@ -61,7 +61,7 @@ const authSchema = Schema({
   age: { type: Number, default: null },
   areaOfInterest: { type: String, default: null },
   branch: { type: String, default: null },
-  gender: { type: String, enum: ["male", "female", "others"], default: null },
+  gender: { type: String, enum: ["male", "female", "others", "N/A"], default: "N/A" },
   institution: { type: String, default: null },
   semester: { type: String, default: null },
   stream: { type: String, default: null },

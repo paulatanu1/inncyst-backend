@@ -1,14 +1,14 @@
 const fetch = require("isomorphic-fetch");
 
-const API_KEY =
-  "voAWPEZfYeSOl9kTLu470FJrKqUV68HMsyR23xDgXbtCNwcGIBJWqj0axZ6Es3RPCSAfDncX1QFNvy54";
+const API_KEY = "test-api-key";
+  // "gY4CM5q3JS0H8tiVflNTaDxbokzIeypGP9KOLdvw7REsU1ZFnhnHVqucpM7NUZSQiw5mTCKL34Bh8a19";
 const url = `https://www.fast2sms.com/dev/bulkV2?authorization=${API_KEY}&variables_values=5599&route=otp&numbers=9999999999,8888888888,7777777777`
 
 const sendSMS = async (otp, number) => {
   const endpoint = "https://www.fast2sms.com/dev/bulkV2";
   const queries = {
     authorization: API_KEY,
-    variables_values: `Hi, your otp for account verification is ${otp}`,
+    variables_values: `${otp}`,
     route: "otp",
     numbers: [number],
   };
