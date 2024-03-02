@@ -11,6 +11,10 @@ const industrySchema = Schema({
     type: String,
     enum: ["office", "hybrid", "remote"], default: "office"
   },
+  jobType: {
+    type: String,
+    enum: ["partTime", "fullTime"], default: "fullTime"
+  },
   startDate: { type: String },
   education: { type: String, enum: ['diploma', 'hs', 'master', 'bachelor'] },
   duration: { type: String },
@@ -21,10 +25,19 @@ const industrySchema = Schema({
   responsibilities: [],
   stipend: {
     type: String,
-    enum: ["fixed", "unpaid", "paid"], default: 'fixed'
+    enum: ["fixed", "unpaid", "paid", "negotiable", "performanceBased"], default: 'fixed'
   },
   salary: { type: Number, default: null },
+  salaryIn: { type: Number, default: null },
   salaryType: { type: String, enum: ["monthly", "yearly"], default: 'monthly' },
+  salaryCtcDescription: {
+    currency: { type: String, enum: ["inr"], default: "inr" },
+    ctcFrom: { type: String, default: null },
+    ctcTo: { type: String, default: null },
+    ctcType: { type: String, default: "yearly" },
+    isProbationPeriod: { type: Boolean, default: false },
+    perks: [String]
+  },
   perks: [],
   location: { type: String },
   status: { type: Boolean, default: false },
@@ -33,6 +46,8 @@ const industrySchema = Schema({
     availability: { type: String, default: null },
     moreQuestions: [String]
   },
+  addtionalCandidatePreference: { type: String, default: null },
+  description: { type: String, default: null },
   createdAt: {
     type: Date,
     default: Date.now,
