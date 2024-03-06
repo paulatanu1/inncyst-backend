@@ -100,7 +100,7 @@ class Validator {
             startDate: VALIDATIONS.STRING_REQUIRED,
             duration: VALIDATIONS.STRING_REQUIRED,
             durationIn: VALIDATIONS.STRING_REQUIRED,
-            education: VALIDATIONS.STRING_REQUIRED,
+                    // education: VALIDATIONS.STRING_REQUIRED,
             jobOpening: VALIDATIONS.NUMBER_REQUIRED,
             stipend: VALIDATIONS.STRING_REQUIRED,
             salary: VALIDATIONS.NUMBER_REQUIRED,
@@ -113,16 +113,19 @@ class Validator {
             availability: VALIDATIONS.ANY,
             moreQuestions: VALIDATIONS.ANY,
             addtionalCandidatePreference: VALIDATIONS.STRING_REQUIRED,
-            description: VALIDATIONS.STRING_REQUIRED,
+            alternativePhone: VALIDATIONS.STRING_REQUIRED,
+                    // description: VALIDATIONS.STRING_REQUIRED,
             jobType: VALIDATIONS.STRING_REQUIRED,
-            salaryCtcDescription: Joi.object().keys({
-                currency: VALIDATIONS.STRING_REQUIRED,
-                ctcFrom: VALIDATIONS.STRING_REQUIRED,
-                ctcTo: VALIDATIONS.STRING_REQUIRED,
-                ctcType: VALIDATIONS.STRING_REQUIRED,
-                isProbationPeriod: VALIDATIONS.STRING_REQUIRED,
-                perks: VALIDATIONS.ARRAY_REQUIRED
-            })
+            responsiblity: VALIDATIONS.ANY,
+            womanRestart: VALIDATIONS.STRING_REQUIRED,
+                    // salaryCtcDescription: Joi.object().keys({
+                    //     currency: VALIDATIONS.STRING_REQUIRED,
+                    //     ctcFrom: VALIDATIONS.STRING_REQUIRED,
+                    //     ctcTo: VALIDATIONS.STRING_REQUIRED,
+                    //     ctcType: VALIDATIONS.STRING_REQUIRED,
+                    //     isProbationPeriod: VALIDATIONS.STRING_REQUIRED,
+                    //     perks: VALIDATIONS.ARRAY_REQUIRED
+                    // })
         });
         return schema.validate(params);
     }
@@ -143,8 +146,8 @@ class Validator {
             jobOpening: VALIDATIONS.NUMBER_REQUIRED,
             responsibilities: VALIDATIONS.ANY,
             stipend: VALIDATIONS.STRING_REQUIRED,
-            salary: VALIDATIONS.NUMBER_REQUIRED,
-            salaryType: VALIDATIONS.STRING_REQUIRED,
+            // salary: VALIDATIONS.NUMBER_REQUIRED,
+            // salaryType: VALIDATIONS.STRING_REQUIRED,
             perks: VALIDATIONS.ARRAY_REQUIRED,
             location: VALIDATIONS.STRING_REQUIRED,
             // startDate: VALIDATIONS.ANY,
@@ -152,7 +155,7 @@ class Validator {
             letter: VALIDATIONS.ANY,
             availability: VALIDATIONS.ANY,
             moreQuestions: VALIDATIONS.ANY,
-            salaryIn: VALIDATIONS.NUMBER_REQUIRED,
+            // salaryIn: VALIDATIONS.NUMBER_REQUIRED,
             addtionalCandidatePreference: VALIDATIONS.STRING_REQUIRED,
             description: VALIDATIONS.STRING_REQUIRED,
             jobType: VALIDATIONS.STRING_REQUIRED,

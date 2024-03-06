@@ -48,6 +48,8 @@ const industrySchema = Schema({
   },
   addtionalCandidatePreference: { type: String, default: null },
   description: { type: String, default: null },
+  alternativePhone: { type: String, default: null },
+  womanRestart: { type: String, default: null },
   createdAt: {
     type: Date,
     default: Date.now,
