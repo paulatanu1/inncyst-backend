@@ -101,7 +101,17 @@ const myProfile = async (req, res) => {
 
 const getAll = async (req, res) => {
   const { query } = req;
-  const filter = {};
+  const filter = {
+    $or: [
+      { title: query.q },
+      { details: query.q },
+      { type: query.q },
+      { intranshipType: query.q },
+      { jobType: query.q },
+      { education: query.q },
+      { stipend: query.q },
+    ]
+  };
   const token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : '';
   try {
     if (token) {
@@ -110,21 +120,19 @@ const getAll = async (req, res) => {
       if (user && user.role === 'industry') {
         filter.industryId = user._id
       } else {
-        filter.status = true
+        filter.status = true;
       }
     } else {
-      filter.status = true
+      filter.status = true;
     }
     
     if (query) {
+      query.sort = { createdAt: -1 };
       if (query.status) {
         filter.status = query.status;
       }
       if (query.jobOpening) {
         filter.jobOpening = { $lte: query.jobOpening };
-      }
-      if (query.stipend) {
-        filter.stipend = { $lte: query.stipend };
       }
       if (query.type) {
         filter.type = query.type;
@@ -145,6 +153,18 @@ const getAll = async (req, res) => {
         query.sort = { createdAt: 1 };
       }
       if (query.sort && query.sort === "dsc") {
+        query.sort = { createdAt: -1 };
+      }
+      if (
+        (query.filterBy && query.filterBy === "asc") ||
+        (query.filterBy && query.filterBy === "oldest")
+      ) {
+        query.sort = { createdAt: 1 };
+      }
+      if (
+        (query.filterBy && query.filterBy === "dsc") ||
+        (query.filterBy && query.filterBy === "newest")
+      ) {
         query.sort = { createdAt: -1 };
       }
     }
