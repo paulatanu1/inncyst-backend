@@ -101,29 +101,31 @@ const myProfile = async (req, res) => {
 
 const getAll = async (req, res) => {
   const { query } = req;
-  const filter = {
-    $or: [
-      { title: query.q },
-      { details: query.q },
-      { type: query.q },
-      { intranshipType: query.q },
-      { jobType: query.q },
-      { education: query.q },
-      { stipend: query.q },
-    ]
-  };
+  let filter = { status: true };
+  let $orConditions = [];
+
+  if (query.q) {
+    const searchCriteria = { $regex: query.q, $options: 'i' };
+    $orConditions.push(
+      { title: searchCriteria },
+      { details: searchCriteria },
+      { type: searchCriteria },
+      { intranshipType: searchCriteria },
+      { jobType: searchCriteria },
+      { education: searchCriteria },
+      { stipend: searchCriteria }
+    );
+  }
+
+  if ($orConditions.length) filter.$or = $orConditions;
   const token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : '';
   try {
     if (token) {
       const auth = jwt.verify(token, process.env.JWT_SECRET);
       const user = await authModel.findById(auth._id);
       if (user && user.role === 'industry') {
-        filter.industryId = user._id
-      } else {
-        filter.status = true;
+        filter.industryId = user._id;
       }
-    } else {
-      filter.status = true;
     }
     
     if (query) {
