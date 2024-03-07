@@ -114,7 +114,7 @@ class Validator {
       alternativePhone: VALIDATIONS.STRING_REQUIRED,
       jobType: VALIDATIONS.STRING_REQUIRED,
       responsiblity: VALIDATIONS.ANY,
-      womanRestart: VALIDATIONS.STRING_REQUIRED
+      womenRestart: VALIDATIONS.STRING_REQUIRED
     });
     return schema.validate(params);
   }
