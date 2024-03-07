@@ -31,7 +31,11 @@ const industrySchema = Schema({
     default: "fixed",
   },
   salary: { type: Number, default: null },
-  salaryIn: { type: Number, default: null },
+  salaryIn: { 
+    type: String,
+    enum: ["fixed", "unpaid", "paid", "negotiable", "performanceBased"],
+    default: "fixed",
+   },
   salaryType: { type: String, enum: ["monthly", "yearly"], default: "monthly" },
   currencyType: { type: String, enum: ["Inr"], default: "Inr" },
   ctcFrom: { type: String, default: null },
