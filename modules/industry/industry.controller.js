@@ -101,7 +101,7 @@ const myProfile = async (req, res) => {
 
 const getAll = async (req, res) => {
   const { query } = req;
-  let filter = { status: true };
+  let filter = {};
   let $orConditions = [];
 
   if (query.q) {
@@ -124,8 +124,12 @@ const getAll = async (req, res) => {
       const auth = jwt.verify(token, process.env.JWT_SECRET);
       const user = await authModel.findById(auth._id);
       if (user && user.role === 'industry') {
-        filter.industryId = user._id;
+        filter.industryId = user._id
+      } else {
+        filter.status = true;
       }
+    } else {
+      filter.status = true;
     }
     
     if (query) {
