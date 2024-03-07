@@ -141,7 +141,7 @@ class Validator {
       availability: VALIDATIONS.ANY,
       moreQuestions: VALIDATIONS.ANY,
       addtionalCandidatePreference: VALIDATIONS.STRING_REQUIRED,
-      description: VALIDATIONS.STRING_REQUIRED,
+      jobDescription: VALIDATIONS.STRING_REQUIRED,
       jobType: VALIDATIONS.STRING_REQUIRED,
       alternativePhone: VALIDATIONS.STRING_REQUIRED,
       ctcFrom: VALIDATIONS.STRING_REQUIRED,

@@ -48,7 +48,7 @@ const industrySchema = Schema({
     moreQuestions: [String],
   },
   addtionalCandidatePreference: { type: String, default: null },
-  description: { type: String, default: null },
+  jobDescription: { type: String, default: null },
   alternativePhone: { type: String, default: null },
   womanRestart: { type: String, default: null },
   createdAt: {
