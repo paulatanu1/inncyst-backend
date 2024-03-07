@@ -147,7 +147,6 @@ class Validator {
       ctcFrom: VALIDATIONS.STRING_REQUIRED,
       currencyType: VALIDATIONS.STRING_REQUIRED,
       ctcTo: VALIDATIONS.STRING_REQUIRED,
-      ctcType: VALIDATIONS.STRING_REQUIRED,
       probationPeriod: VALIDATIONS.ARRAY_REQUIRED,
     });
     return schema.validate(params);
