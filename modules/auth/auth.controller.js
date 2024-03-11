@@ -431,16 +431,19 @@ const resetPhoneOtp = async (req, res) => {
     otpData.phoneOtp = otpPhone;
     await otpData.save();
   }
-  const mailOptions = {
-    subject: "RESEND OTP FOR PHONE",
-    email: auth.email,
-    data: {
-      otp: otpData,
-    },
-    template: "templates/resend-phone-otp.ejs",
-  };
-  const nodeMailer = new NodeMailer(mailOptions);
-  await nodeMailer.sentMail();
+  // const mailOptions = {
+  //   subject: "RESEND OTP FOR PHONE",
+  //   email: auth.email,
+  //   data: {
+  //     otp: otpData,
+  //   },
+  //   template: "templates/resend-phone-otp.ejs",
+  // };
+  // const nodeMailer = new NodeMailer(mailOptions);
+  // await nodeMailer.sentMail();
+  
+  const dd = await sendSMS(otpPhone, phone);
+    console.log(dd, "-------");
 
   setTimeout(() => {
     otpModel
