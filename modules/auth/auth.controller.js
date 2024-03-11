@@ -15,6 +15,7 @@ const {
   loginRequests,
 } = require("../../middlewares/validator");
 const userResume = require('../student/studentResume.model');
+const userType = require('../common/userType');
 
 const register = async (req, res) => {
   const { role, name, email, phone, password } = req.body;
@@ -26,7 +27,7 @@ const register = async (req, res) => {
       data: null,
     });
   }
-  const userData = await authModel.findOne({ email, role });
+  const userData = await authModel.findOne({ email, role: userType[role] });
   if (userData) {
     return res.status(400).json({
       success: false,
@@ -38,7 +39,7 @@ const register = async (req, res) => {
     email: email,
     phone: phone,
     password: password,
-    role: role,
+    role: userType[role],
   });
   const savedUser = await saveAuthData.save();
   sendOtp(savedUser);
