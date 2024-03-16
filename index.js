@@ -66,6 +66,10 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use('/test', (req, res) => {
+  res.send("Hello World!");
+})
+
 // app.use("/api/users", users);
 // app.use("/api/mail-svc", mail);
 
