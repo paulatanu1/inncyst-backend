@@ -43,6 +43,7 @@
     "pdf-lib": "^1.17.1",
     "query-string": "^7.1.1",
     "randomstring": "^1.2.3",
+    "razorpay": "^2.9.4",
     "twilio": "^3.77.3",
     "uuid": "^9.0.1"
   }

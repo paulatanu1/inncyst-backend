@@ -170,6 +170,16 @@ class Validator {
     });
     return schema.validate(params);
   }
+
+  static createPlanValidator(params) {
+    const schema = Joi.object().keys({
+      planName: VALIDATIONS.STRING_REQUIRED,
+      period: VALIDATIONS.STRING_REQUIRED,
+      amount: VALIDATIONS.STRING_REQUIRED,
+      description: VALIDATIONS.STRING_REQUIRED,
+    });
+    return schema.validate(params);
+  }
 }
 
 module.exports = Validator;
