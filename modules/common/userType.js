@@ -21,6 +21,7 @@ const userType = {
   "03": "mentor",
   "04": "laboratory",
   "05": "manufacturing",
+  ADMIN: 'admin',
   ORGANIZATION: "organization",
   LAB: "lab",
   CUSTOMER: "customer",

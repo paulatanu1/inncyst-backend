@@ -20,4 +20,4 @@ const planSchema = Schema({
     deletedAt: { type: Date, default: null }
 });
 
-module.exports = model('Plan', planSchema);
+module.exports = model('plan', planSchema);

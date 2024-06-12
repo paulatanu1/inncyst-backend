@@ -34,6 +34,7 @@ const manufacturerRouter = require('./modules/manufacturer/manufacturer.router')
 const intranshipRouter = require("./modules/intranship/intranship.router");
 const studentRouter = require("./modules/student/student.router");
 const contactRouter = require("./modules/common/contact/contact.router");
+const paymentRouter = require('./modules/payment/payment.router');
 
 connectDB();
 const app = express();
@@ -96,6 +97,7 @@ app.use("/api/lab/access/", access);
 app.use("/api/lab/lims/", testRequest);
 app.use("/api/lab/form", form);
 app.use("/api/lab/customer", customer);
+app.use("/api/payment", paymentRouter);
 
 // app.use(errorHandler);
 

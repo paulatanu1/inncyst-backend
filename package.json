@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
+    "seed": "node ./modules/Seeders/index.js",
     "start": "node index.js",
     "prod": "pm2 start index.js --name 'server'"
   },
