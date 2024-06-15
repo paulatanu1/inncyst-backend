@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 
 module.exports = class Admin extends BaseSeeder {
   async run() {
-    try {
+    try { 
       console.log("running admin seeder");
       const user = {
         name: "Admin Admin",
