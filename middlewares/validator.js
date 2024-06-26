@@ -180,6 +180,14 @@ class Validator {
     });
     return schema.validate(params);
   }
+
+  static createContentValidator(params) {
+    const schema = Joi.object().keys({
+      contentType: VALIDATIONS.STRING_REQUIRED,
+      content: VALIDATIONS.STRING_REQUIRED
+    });
+    return schema.validate(params);
+  }
 }
 
 module.exports = Validator;
