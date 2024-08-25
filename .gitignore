@@ -12,3 +12,9 @@ modules/.DS_Store
 public/.DS_Store
 
 .env
+
+public/lab-certificate/
+public/lab-logo/
+public/facility-image/
+public/lab-user-manual/
+public/user-images/

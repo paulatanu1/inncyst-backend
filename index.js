@@ -99,6 +99,8 @@ app.use("/api/lab/lims/", testRequest);
 app.use("/api/lab/form", form);
 app.use("/api/lab/customer", customer);
 
+app.use("/api/lab/facilities", facilities);
+
 // Payment
 app.use("/api/payment", paymentRouter);
 

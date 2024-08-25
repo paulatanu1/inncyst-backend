@@ -3,12 +3,13 @@ const RequestLabpool = require("../../organization/request/request.model");
 
 const asyncHandler = require("../../../middlewares/async.middleware");
 const { ErrorResponse, SuccessResponse } = require("../../../utils");
-const bcrypt = require('bcryptjs')
-const { NodeMailer } = require('../../../config/Mailer');
-const { getImageExtension } = require('../../../utils/fileExtentionFromBase64');
+const bcrypt = require("bcryptjs");
+const { NodeMailer } = require("../../../config/Mailer");
+const { getImageExtension } = require("../../../utils/fileExtentionFromBase64");
 const fs = require("fs");
 const path = require("path");
-const { ROOT_PATH } = require('../../../config');
+const { ROOT_PATH } = require("../../../config");
+const jwt = require("jsonwebtoken");
 
 const onBoardAlab = asyncHandler(async (req, res, next) => {});
 
@@ -20,7 +21,7 @@ const labRegister = async (req, res) => {
       return res.status(400).json({
         success: false,
         data: null,
-        message: 'This lab is already exixts!'
+        message: "This lab is already exixts!",
       });
     }
 
@@ -38,7 +39,7 @@ const labRegister = async (req, res) => {
       labDescription: body.labDescription,
       labWebsite: body.labWebsite,
       password: bcrypt.hashSync(password, 10),
-      token: body.token
+      token: body.token,
     });
 
     if (files && files.certificate) {
@@ -59,7 +60,7 @@ const labRegister = async (req, res) => {
       }
       labInstance.accreditionCertificate = "/lab-certificate/" + name;
     }
-    
+
     if (body && body.logo) {
       const extention = getImageExtension(body.logo);
       const dir = ROOT_PATH + "/public/lab-logo/";
@@ -69,7 +70,7 @@ const labRegister = async (req, res) => {
       const name = `${labInstance.labName}${extention}`;
       const imageBuffer = Buffer.from(body.logo.split(",")[1], "base64");
       fs.writeFileSync(path.join(dir, name), imageBuffer);
-      labInstance.logo = '/lab-logo/' + name;
+      labInstance.logo = "/lab-logo/" + name;
     }
 
     await labInstance.save();
@@ -79,7 +80,7 @@ const labRegister = async (req, res) => {
       email: body.email,
       data: {
         email: body.email,
-        password
+        password,
       },
       template: "templates/lab-welcome.ejs",
     };
@@ -89,14 +90,59 @@ const labRegister = async (req, res) => {
       return res.status(201).json({
         success: true,
         data: labInstance,
-        message: 'Lab registered successfully',
+        message: "Lab registered successfully",
       });
     }
   } catch (error) {
     return res.status(500).json({
       success: false,
       data: {},
-      message: error.message || 'Server error',
+      message: error.message || "Server error",
+    });
+  }
+};
+
+const labLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const lab = await Lab.findOne({ email });
+    if (!lab) {
+      return res.status(401).json({
+        success: false,
+        data: null,
+        message: "Lab not found",
+      });
+    }
+    if (!lab.status) {
+      return res.status(400).json({
+        success: false,
+        data: null,
+        message: "Lab is not active",
+      });
+    }
+    const isMatch = await bcrypt.compare(password, lab.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        data: null,
+        message: "Invalid password",
+      });
+    }
+    const token_jwt = jwt.sign({ _id: lab._id }, process.env.JWT_SECRET, {
+      expiresIn: "30d",
+    });
+    return res.status(200).json({
+      success: true,
+      messege: "Logged in successfully",
+      LOGIN_TYPE: lab.role,
+      data: lab,
+      token: token_jwt,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      data: null,
+      message: error.message,
     });
   }
 };
@@ -139,10 +185,51 @@ const getLabs = asyncHandler(async (req, res, next) => {
   });
 });
 
+const changePassword = async (req, res) => {
+  try {
+    const { old_password, new_password } = req.body;
+    const current_user = req.user;
+    if (old_password === new_password) {
+      return res.status(400).json({
+        status: false,
+        data: null,
+        message: "New password not same as old password",
+      });
+    }
+    const labUser = await Lab.findOne({
+      _id: current_user._id,
+    });
+    const matchPassword = bcrypt.compareSync(old_password, labUser.password);
+    if (!matchPassword) {
+      return res.status(400).json({
+        status: false,
+        data: null,
+        message: "Old Password mismatch",
+      });
+    }
+    const hashPassword = bcrypt.hashSync(new_password, 10);
+    labUser.password = hashPassword;
+    await labUser.save();
+    return res.status(200).json({
+      status: true,
+      data: labUser,
+      message: "Password changed successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      data: null,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   labRegister,
+  labLogin,
   createLab,
   getLabs,
   addTechnician,
   onBoardAlab,
+  changePassword,
 };
