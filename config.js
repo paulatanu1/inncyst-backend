@@ -1,4 +1,5 @@
 module.exports = {
+    ROOT_PATH: __dirname,
     APP_URL: 'http://localhost:5500',
     APP_PORT: 5200,
     APP_NAME : '',

@@ -10,3 +10,5 @@ public/user-portfolio/
 dump/.DS_Store
 modules/.DS_Store
 public/.DS_Store
+
+.env

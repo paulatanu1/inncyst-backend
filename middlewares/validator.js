@@ -173,6 +173,7 @@ class Validator {
 
   static createPlanValidator(params) {
     const schema = Joi.object().keys({
+      planId: VALIDATIONS.STRING_REQUIRED,
       planName: VALIDATIONS.STRING_REQUIRED,
       period: VALIDATIONS.STRING_REQUIRED,
       amount: VALIDATIONS.STRING_REQUIRED,

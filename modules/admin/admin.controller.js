@@ -92,7 +92,11 @@ const adminController = {
         data: null,
       });
     }
-  }
+  },
+
+  studentList: async (req, res) => {
+    
+  },
 };
 
 module.exports = adminController;
