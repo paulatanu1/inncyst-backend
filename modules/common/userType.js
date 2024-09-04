@@ -31,6 +31,7 @@ const userType = {
   EMPLOYER: "employer",
   EXPART: "expart",
   CANDIDATE: "candidate",
+  INDUSTRY: 'industry'
 };
 
 module.exports = userType;
