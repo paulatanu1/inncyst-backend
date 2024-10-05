@@ -29,6 +29,15 @@ class Validator {
     return schema.validate(params);
   }
 
+  static socialLoginRequest(params) {
+    const schema = Joi.object().keys({
+      token: VALIDATIONS.STRING_REQUIRED,
+      role: VALIDATIONS.STRING_REQUIRED,
+      loginType: Joi.string().valid('google', 'linkedin')
+    });
+    return schema.validate(params);
+  }
+
   static loginRequests(params) {
     const schema = Joi.object().keys({
       email: VALIDATIONS.EMAIL,

@@ -17,13 +17,15 @@ const {
   updatePortfolio,
   portFolioData,
   deletePortfolio,
-  getById
+  getById,
+  socialLogin
 } = require("./auth.controller");
 const isLogged = require("../../middlewares/isLoggedIn.middleware");
 
 router.post("/register", register);
 router.get("/profile/:id", profile);
 router.post("/login", login);
+router.post('/social/login', socialLogin);
 router.get("/me", isLogged, getMe);
 router.put("/edit-profile", isLogged, editProfile);
 router.post("/profile-image", isLogged, uploadProfilePicture);

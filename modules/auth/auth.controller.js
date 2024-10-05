@@ -4,7 +4,6 @@ const jwt = require("jsonwebtoken");
 const authModel = require("./auth.model");
 const portfolioModel = require("./portfolio.model");
 const otpModel = require("./otp.model");
-const { transporter } = require("../../config/email");
 const { generateOtp } = require("../../config/otp");
 const { sendSMS } = require("../../config/fast2sms");
 const { NodeMailer } = require("../../config/Mailer");
@@ -13,9 +12,10 @@ const path = require("path");
 const {
   registratonRequest,
   loginRequests,
+  socialLoginRequest
 } = require("../../middlewares/validator");
-const userResume = require('../student/studentResume.model');
-const userType = require('../common/userType');
+const userResume = require("../student/studentResume.model");
+const userType = require("../common/userType");
 
 const register = async (req, res) => {
   const { role, name, email, phone, password } = req.body;
@@ -43,7 +43,7 @@ const register = async (req, res) => {
   });
   const savedUser = await saveAuthData.save();
   sendOtp(savedUser);
-  if (savedUser.role === 'student') {
+  if (savedUser.role === "student") {
     sendstudentWellcomemail(savedUser);
   }
   // if (savedUser.role === 'industry') {
@@ -101,7 +101,7 @@ const login = async (req, res) => {
     });
   }
   if (user.verified === false) {
-    sendOtp(user)
+    sendOtp(user);
     return res.status(403).json({
       success: false,
       data: user,
@@ -138,7 +138,11 @@ const getMe = async (req, res) => {
   try {
     const { user } = req;
     const userData = await authModel.findById(user._id).lean();
-    const resume = await userResume.findOne({ user: userData._id, deletedAt: null, status: true });
+    const resume = await userResume.findOne({
+      user: userData._id,
+      deletedAt: null,
+      status: true,
+    });
     userData.resume = resume ? resume : null;
     return res.status(200).json({
       success: true,
@@ -342,7 +346,9 @@ const verifyAccount = async (req, res) => {
     .sort({ _id: -1 });
   if (otpData && otpData.emailOtp === otp_email) {
     if (otpData && otpData.phoneOtp === otp_phone) {
-      const user = await authModel.findOneAndUpdate(filter, update, { new: true });
+      const user = await authModel.findOneAndUpdate(filter, update, {
+        new: true,
+      });
       await otpModel.deleteMany({ userId: id });
       const token_jwt = jwt.sign(
         {
@@ -441,9 +447,9 @@ const resetPhoneOtp = async (req, res) => {
   // };
   // const nodeMailer = new NodeMailer(mailOptions);
   // await nodeMailer.sentMail();
-  
+
   const dd = await sendSMS(otpPhone, phone);
-    console.log(dd, "-------");
+  console.log(dd, "-------");
 
   setTimeout(() => {
     otpModel
@@ -478,7 +484,7 @@ const sendOtp = async (user) => {
       email: user.email,
       data: {
         otp: saveOtp,
-        user: user
+        user: user,
       },
       template: "templates/email-innov.ejs",
     };
@@ -558,8 +564,8 @@ const sendstudentWellcomemail = async (user) => {
 const uploadPortfolio = async (req, res) => {
   const { user, files, body } = req;
 
-  console.log(req, files, body, "----")
-  
+  console.log(req, files, body, "----");
+
   const dir = __dirname + "/../../public/user-portfolio/";
   let portfolio;
   let portfolioData = {
@@ -571,7 +577,7 @@ const uploadPortfolio = async (req, res) => {
     keyword: body.keyword,
     patent: body.patent,
     selectedItem: body.selectedItem,
-    portfolioStatus: body.portfolioStatus
+    portfolioStatus: body.portfolioStatus,
   };
 
   if (body.url) {
@@ -670,21 +676,24 @@ const getById = async (req, res) => {
       return res.status(400).json({
         success: false,
         data: null,
-        message: 'Invalid id provided'
+        message: "Invalid id provided",
       });
     }
-    const result = await portfolioModel.findOne({ _id: params.id, user: user._id });
+    const result = await portfolioModel.findOne({
+      _id: params.id,
+      user: user._id,
+    });
     if (!result) {
       return res.status(400).json({
         success: false,
         data: {},
-        message: 'No data found'
+        message: "No data found",
       });
     }
     return res.status(200).json({
       success: true,
       data: result,
-      message: 'Success'
+      message: "Success",
     });
   } catch (error) {
     return res.status(400).json({
@@ -694,7 +703,6 @@ const getById = async (req, res) => {
     });
   }
 };
-
 
 const updatePortfolio = async (req, res) => {
   const { user, files, body, params } = req;
@@ -715,7 +723,7 @@ const updatePortfolio = async (req, res) => {
     keyword: body.keyword,
     patent: body.patent,
     selectedItem: body.selectedItem,
-    portfolioStatus: body.portfolioStatus
+    portfolioStatus: body.portfolioStatus,
   };
 
   if (body.url) {
@@ -803,7 +811,10 @@ const updatePortfolio = async (req, res) => {
 const portFolioData = async (req, res) => {
   const { user } = req;
   try {
-    const result = await portfolioModel.find({ user: user._id, deletedAt: null });
+    const result = await portfolioModel.find({
+      user: user._id,
+      deletedAt: null,
+    });
     return res.status(200).json({
       success: true,
       data: result,
@@ -821,7 +832,7 @@ const portFolioData = async (req, res) => {
 const deletePortfolio = async (req, res) => {
   const { params } = req;
   try {
-    const portfolioData = await portfolioModel.findOne({ _id: params.id});
+    const portfolioData = await portfolioModel.findOne({ _id: params.id });
     if (portfolioData) {
       portfolioData.deletedAt = Date.now();
     }
@@ -829,8 +840,8 @@ const deletePortfolio = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Portfolio deleted successfully",
-      data: {}
-    })
+      data: {},
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -838,7 +849,75 @@ const deletePortfolio = async (req, res) => {
       message: `Error. ${error.message}`,
     });
   }
-}
+};
+
+const socialLogin = async (req, res) => {
+  const { loginType, role, userdata: { email, name, picture } } = req.body;
+  try {
+    if (loginType === "google") {
+      const isExistsUser = await authModel.findOne({ email: email });
+      if (isExistsUser) {
+        const updatedUser = await authModel.findByIdAndUpdate(
+          isExistsUser._id,
+          { $set: { image: picture || null, verified: true } },
+          { new: true }
+        );
+        const token_jwt = jwt.sign(
+          {
+            _id: updatedUser._id,
+          },
+          process.env.JWT_SECRET,
+          {
+            expiresIn: "30d",
+          }
+        );
+        return res.status(200).json({
+          success: true,
+          data: updatedUser,
+          message: "User login successfully",
+          LOGIN_TYPE: updatedUser.role,
+          token: token_jwt,
+        });
+      } else {
+        const newUser = new authModel({
+          email: email,
+          name: name,
+          image: picture || null,
+          verified: true,
+          role: userType[role],
+          password: "password@123",
+        });
+        const savedUser = await newUser.save();
+        if (savedUser.role === "student") {
+          sendstudentWellcomemail(savedUser);
+        }
+        const token_jwt = jwt.sign(
+          {
+            _id: savedUser._id,
+          },
+          process.env.JWT_SECRET,
+          {
+            expiresIn: "30d",
+          }
+        );
+        return res.status(200).json({
+          success: true,
+          data: savedUser,
+          message: "User login successfully",
+          LOGIN_TYPE: savedUser.role,
+          token: token_jwt,
+        });
+      }
+    }
+  } catch (error) {
+    console.log(error, "error.response")
+    return res.status(500).json({
+      success: false,
+      data: {},
+      message: `An error occurred during authentication. Please try again.`,
+    });
+  }
+};
 
 module.exports = {
   register,
@@ -858,5 +937,6 @@ module.exports = {
   updatePortfolio,
   portFolioData,
   deletePortfolio,
-  getById
+  getById,
+  socialLogin,
 };
