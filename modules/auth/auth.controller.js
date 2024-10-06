@@ -859,7 +859,7 @@ const socialLogin = async (req, res) => {
       if (isExistsUser) {
         const updatedUser = await authModel.findByIdAndUpdate(
           isExistsUser._id,
-          { $set: { image: picture || null, verified: true } },
+          { $set: { image: picture || null, verified: true, emailVerified: true } },
           { new: true }
         );
         const token_jwt = jwt.sign(
