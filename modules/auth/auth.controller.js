@@ -885,7 +885,7 @@ const socialLogin = async (req, res) => {
           image: picture || null,
           verified: true,
           emailVerified: true,
-          role: userType[role],
+          role: role,
           password: "password@123",
         });
         const savedUser = await newUser.save();
