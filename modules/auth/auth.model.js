@@ -53,6 +53,8 @@ const authSchema = Schema({
     maxlength: 100,
   },
   verified: { type: Boolean, default: false },
+  emailVerified: { type: Boolean, default: false },
+  phoneVerified: { type: Boolean, default: false },
   question_step: { type: Boolean, default: false },
   location: { type: String, default: null, maxlength: 50 },
   skills: [],

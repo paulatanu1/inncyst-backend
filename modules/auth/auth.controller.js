@@ -340,7 +340,7 @@ const verifyAccount = async (req, res) => {
   // const auth = jwt.verify(token, process.env.JWT_SECRET);
   const { otp_email, otp_phone, id } = req.body;
   const filter = { _id: id };
-  const update = { verified: true };
+  const update = { verified: true, emailVerified: true, phoneVerified: true };
   const otpData = await otpModel
     .findOne({ userId: id, emailOtp: otp_email })
     .sort({ _id: -1 });
@@ -884,6 +884,7 @@ const socialLogin = async (req, res) => {
           name: name,
           image: picture || null,
           verified: true,
+          emailVerified: true,
           role: userType[role],
           password: "password@123",
         });
