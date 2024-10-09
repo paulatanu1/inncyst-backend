@@ -852,8 +852,15 @@ const deletePortfolio = async (req, res) => {
 };
 
 const socialLogin = async (req, res) => {
-  const { loginType, role, userdata: { email, name, picture } } = req.body;
   try {
+    const { loginType, role, userdata: { email, name, picture } } = req.body;
+    if (!email) {
+      return res.status(500).json({
+        success: false,
+        data: {},
+        message: `Please provide email`,
+      });
+    }
     if (loginType === "google") {
       const isExistsUser = await authModel.findOne({ email: email });
       if (isExistsUser) {
