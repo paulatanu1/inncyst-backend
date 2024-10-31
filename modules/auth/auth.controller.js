@@ -885,37 +885,48 @@ const socialLogin = async (req, res) => {
           LOGIN_TYPE: updatedUser.role,
           token: token_jwt,
         });
-      } else {
-        const newUser = new authModel({
-          email: email,
-          name: name,
-          image: picture || null,
-          verified: true,
-          emailVerified: true,
-          role: role,
-          password: "password@123",
-        });
-        const savedUser = await newUser.save();
-        if (savedUser.role === "student") {
-          sendstudentWellcomemail(savedUser);
-        }
-        const token_jwt = jwt.sign(
-          {
-            _id: savedUser._id,
+      }
+       if (!isExistsUser && !role) {
+        return res.status(400).json({
+          success: false,
+          data: {
+            isUser: false,
+            isUserRole: false
           },
-          process.env.JWT_SECRET,
-          {
-            expiresIn: "30d",
-          }
-        );
-        return res.status(200).json({
-          success: true,
-          data: savedUser,
-          message: "User login successfully",
-          LOGIN_TYPE: savedUser.role,
-          token: token_jwt,
+          message: `Please select role`,
         });
       }
+
+      const newUser = new authModel({
+        email: email,
+        name: name,
+        image: picture || null,
+        verified: true,
+        emailVerified: true,
+        role: role,
+        password: "password@123",
+      });
+      const savedUser = await newUser.save();
+      if (savedUser.role === "student") {
+        sendstudentWellcomemail(savedUser);
+      }
+      const token_jwt = jwt.sign(
+        {
+          _id: savedUser._id,
+        },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "30d",
+        }
+      );
+      return res.status(200).json({
+        success: true,
+        data: savedUser,
+        message: "User login successfully",
+        LOGIN_TYPE: savedUser.role,
+        token: token_jwt,
+      });
+
     }
   } catch (error) {
     console.log(error, "error.response")
