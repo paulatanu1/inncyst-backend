@@ -18,7 +18,9 @@ const {
   portFolioData,
   deletePortfolio,
   getById,
-  socialLogin
+  socialLogin,
+  socialMobileVerify,
+  verifyPhoneOtp
 } = require("./auth.controller");
 const isLogged = require("../../middlewares/isLoggedIn.middleware");
 
@@ -26,12 +28,14 @@ router.post("/register", register);
 router.get("/profile/:id", profile);
 router.post("/login", login);
 router.post('/social/login', socialLogin);
+router.post('/verify-social-phone', socialMobileVerify)
 router.get("/me", isLogged, getMe);
 router.put("/edit-profile", isLogged, editProfile);
 router.post("/profile-image", isLogged, uploadProfilePicture);
 router.post("/change-password", isLogged, changePassword);
 router.post("/forget-password", forgetPassword);
 router.post("/email-otp-verify", verifyEmailOtp);
+router.post("/phone-otp-verify", verifyPhoneOtp);
 router.put("/change-forget-password", setNewPassword);
 router.post("/verify", verifyAccount);
 router.put("/reset-email-otp", resetEmailOtp);

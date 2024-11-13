@@ -293,6 +293,27 @@ const verifyEmailOtp = async (req, res) => {
   }
 };
 
+const verifyPhoneOtp = async (req, res) => {
+  const { body } = req;
+  const user = await authModel.findOne({ phone: body.phone });
+  const otpData = await otpModel.findOne({
+    userId: user._id,
+    phoneOtp: body.otp,
+  });
+  if (otpData && otpData.phoneOtp === body.otp) {
+    await otpModel.deleteMany({ userId: user._id });
+    return res.status(200).json({
+      success: true,
+      message: "Otp verified successfully",
+    });
+  } else {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid Otp, please try again",
+    });
+  }
+};
+
 const setNewPassword = async (req, res) => {
   const { body } = req;
   const newPassword = body.newPassword;
@@ -519,6 +540,33 @@ const sendOtpEmal = async (user) => {
     await nodeMailer.sentMail();
     const dd = await sendSMS();
     console.log(dd, "-------");
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+const sendOtpPhone = async (user) => {
+  const otpPhone = generateOtp();
+  try {
+    const saveOtp = new otpModel({
+      userId: user._id,
+      phoneOtp: otpPhone,
+      otpType: "signup",
+    });
+    await saveOtp.save();
+    const mailOptions = {
+      subject: "ACCOUNT VERIFICATION",
+      email: user.email,
+      data: {
+        otp: saveOtp,
+      },
+      template: "templates/resend-phone-otp.ejs",
+    };
+    const nodeMailer = new NodeMailer(mailOptions);
+    await nodeMailer.sentMail();
+    // const dd = await sendSMS();
+    // console.log(dd, "-------");
   } catch (error) {
     console.log(error);
     return error;
@@ -938,6 +986,28 @@ const socialLogin = async (req, res) => {
   }
 };
 
+const socialMobileVerify = async (req, res) => {
+  try {
+    const { user, body } = req;
+    if (body && body.phone) {
+      const userData = await authModel.findOneAndUpdate({ _id: user._id }, {
+        phone: body.phone
+      }, {
+        new: true,
+      });
+      if (userData) {
+        sendOtpPhone(user)
+      }
+    }
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      data: {},
+      message: `An error occurred Please try again.`,
+    });
+  }
+}
+
 module.exports = {
   register,
   profile,
@@ -958,4 +1028,6 @@ module.exports = {
   deletePortfolio,
   getById,
   socialLogin,
+  socialMobileVerify,
+  verifyPhoneOtp
 };
