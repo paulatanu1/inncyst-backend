@@ -28,7 +28,7 @@ router.post("/register", register);
 router.get("/profile/:id", profile);
 router.post("/login", login);
 router.post('/social/login', socialLogin);
-router.post('/verify-social-phone', socialMobileVerify)
+router.post('/verify-social-phone', isLogged, socialMobileVerify)
 router.get("/me", isLogged, getMe);
 router.put("/edit-profile", isLogged, editProfile);
 router.post("/profile-image", isLogged, uploadProfilePicture);

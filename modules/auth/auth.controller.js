@@ -302,6 +302,8 @@ const verifyPhoneOtp = async (req, res) => {
   });
   if (otpData && otpData.phoneOtp === body.otp) {
     await otpModel.deleteMany({ userId: user._id });
+    user.phoneVerified = true;
+    await user.save();
     return res.status(200).json({
       success: true,
       message: "Otp verified successfully",
@@ -998,8 +1000,14 @@ const socialMobileVerify = async (req, res) => {
       if (userData) {
         sendOtpPhone(user)
       }
+      return res.status(200).json({
+        success: true,
+        data: userData,
+        message: `Phone number added.`,
+      });
     }
   } catch (error) {
+    console.log(error, "error")
     return res.status(500).json({
       success: false,
       data: {},
