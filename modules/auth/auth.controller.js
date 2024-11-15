@@ -317,6 +317,7 @@ const verifyPhoneOtp = async (req, res) => {
       await otpModel.deleteMany({ userId: user._id });
       return res.status(200).json({
         success: true,
+        data: user,
         message: "Otp verified successfully",
       });
     } else {
