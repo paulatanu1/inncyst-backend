@@ -12,7 +12,7 @@ const path = require("path");
 const {
   registratonRequest,
   loginRequests,
-  socialLoginRequest
+  socialLoginRequest,
 } = require("../../middlewares/validator");
 const userResume = require("../student/studentResume.model");
 const userType = require("../common/userType");
@@ -295,23 +295,42 @@ const verifyEmailOtp = async (req, res) => {
 
 const verifyPhoneOtp = async (req, res) => {
   const { body } = req;
-  const user = await authModel.findOne({ phone: body.phone });
-  const otpData = await otpModel.findOne({
-    userId: user._id,
-    phoneOtp: body.otp,
-  });
-  if (otpData && otpData.phoneOtp === body.otp) {
-    await otpModel.deleteMany({ userId: user._id });
-    user.phoneVerified = true;
-    await user.save();
-    return res.status(200).json({
-      success: true,
-      message: "Otp verified successfully",
+  try {
+    const user = await authModel.findOne({ phone: body.phone });
+    if (user && user.phoneVerified === true) {
+      return res.status(200).json({
+        success: true,
+        data: user,
+        message: "Phone already verified!",
+      });
+    }
+    const otpData = await otpModel.findOne({
+      userId: user._id,
+      phoneOtp: body.otp,
     });
-  } else {
+    if (otpData && otpData.phoneOtp === body.otp) {
+      await authModel.findOneAndUpdate(
+        { _id: user._id },
+        { phoneVerified: true },
+        { new: true }
+      );
+      await otpModel.deleteMany({ userId: user._id });
+      return res.status(200).json({
+        success: true,
+        message: "Otp verified successfully",
+      });
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Otp, please try again",
+      });
+    }
+  } catch (error) {
+    console.log(error);
     return res.status(400).json({
       success: false,
-      message: "Invalid Otp, please try again",
+      data: null,
+      message: "Something wrong!",
     });
   }
 };
@@ -551,12 +570,21 @@ const sendOtpEmal = async (user) => {
 const sendOtpPhone = async (user) => {
   const otpPhone = generateOtp();
   try {
-    const saveOtp = new otpModel({
+    let saveOtp;
+    const isExists = await otpModel.findOne({
       userId: user._id,
-      phoneOtp: otpPhone,
-      otpType: "signup",
     });
-    await saveOtp.save();
+    if (isExists) {
+      isExists.phoneOtp = otpPhone;
+      saveOtp = await isExists.save();
+    } else {
+      saveOtp = new otpModel({
+        userId: user._id,
+        phoneOtp: otpPhone,
+        otpType: "signup",
+      });
+      await saveOtp.save();
+    }
     const mailOptions = {
       subject: "ACCOUNT VERIFICATION",
       email: user.email,
@@ -903,7 +931,11 @@ const deletePortfolio = async (req, res) => {
 
 const socialLogin = async (req, res) => {
   try {
-    const { loginType, role, userdata: { email, name, picture } } = req.body;
+    const {
+      loginType,
+      role,
+      userdata: { email, name, picture },
+    } = req.body;
     if (!email) {
       return res.status(500).json({
         success: false,
@@ -916,7 +948,13 @@ const socialLogin = async (req, res) => {
       if (isExistsUser) {
         const updatedUser = await authModel.findByIdAndUpdate(
           isExistsUser._id,
-          { $set: { image: picture || null, verified: true, emailVerified: true } },
+          {
+            $set: {
+              image: picture || null,
+              verified: true,
+              emailVerified: true,
+            },
+          },
           { new: true }
         );
         const token_jwt = jwt.sign(
@@ -936,12 +974,12 @@ const socialLogin = async (req, res) => {
           token: token_jwt,
         });
       }
-       if (!isExistsUser && !role) {
+      if (!isExistsUser && !role) {
         return res.status(400).json({
           success: false,
           data: {
             isUser: false,
-            isUserRole: false
+            isUserRole: false,
           },
           message: `Please select role`,
         });
@@ -976,10 +1014,9 @@ const socialLogin = async (req, res) => {
         LOGIN_TYPE: savedUser.role,
         token: token_jwt,
       });
-
     }
   } catch (error) {
-    console.log(error, "error.response")
+    console.log(error, "error.response");
     return res.status(500).json({
       success: false,
       data: {},
@@ -992,13 +1029,17 @@ const socialMobileVerify = async (req, res) => {
   try {
     const { user, body } = req;
     if (body && body.phone) {
-      const userData = await authModel.findOneAndUpdate({ _id: user._id }, {
-        phone: body.phone
-      }, {
-        new: true,
-      });
+      const userData = await authModel.findOneAndUpdate(
+        { _id: user._id },
+        {
+          phone: body.phone,
+        },
+        {
+          new: true,
+        }
+      );
       if (userData) {
-        sendOtpPhone(user)
+        sendOtpPhone(user);
       }
       return res.status(200).json({
         success: true,
@@ -1007,14 +1048,14 @@ const socialMobileVerify = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error, "error")
+    console.log(error, "error");
     return res.status(500).json({
       success: false,
       data: {},
       message: `An error occurred Please try again.`,
     });
   }
-}
+};
 
 module.exports = {
   register,
@@ -1037,5 +1078,5 @@ module.exports = {
   getById,
   socialLogin,
   socialMobileVerify,
-  verifyPhoneOtp
+  verifyPhoneOtp,
 };
