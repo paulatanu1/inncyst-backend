@@ -37,6 +37,8 @@ const contactRouter = require("./modules/common/contact/contact.router");
 const paymentRouter = require('./modules/payment/payment.router');
 const adminRouter = require('./modules/admin/admin.router');
 
+const mentorRouter = require('./modules/mentor/mentor.router');
+
 connectDB();
 const app = express();
 const port = process.env.PORT || 5500;
@@ -106,6 +108,9 @@ app.use("/api/payment", paymentRouter);
 
 // Admin
 app.use("/api/admin", adminRouter);
+
+// Mentor
+app.use("/api/mentor", mentorRouter);
 
 // app.use(errorHandler);
 
