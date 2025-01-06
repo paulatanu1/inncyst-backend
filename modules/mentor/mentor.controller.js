@@ -1,5 +1,6 @@
 const mentorModel = require("./about.model");
 const mentorContactModel = require("./contact.model");
+const mentorExprienceModel = require("./experience.model");
 
 class Mentor {
   static async getMentorAbout(req, res) {
@@ -124,6 +125,118 @@ class Mentor {
       return res.status(500).json({
         success: false,
         message: "Something wrong",
+      });
+    }
+  }
+
+  static async getAllMentorExpireances(req, res) {
+    const { user } = req;
+    const filter = { user: user._id, status: true };
+    let $orConditions = [];
+
+    if (req.query.q) {
+      const searchCriteria = { $regex: query.q, $options: "i" };
+      $orConditions.push({ startDate: searchCriteria });
+    }
+    if ($orConditions.length) {
+      filter.$or = $orConditions;
+    }
+    const findDatas = await mentorExprienceModel.find(filter);
+    return res.status(200).json({
+      success: true,
+      data: findDatas,
+      message: "",
+    });
+  }
+
+  static async getMntorExpById(req, res) {
+    const { id } = req.params;
+    const { user } = req;
+    const mentorExp = await mentorExprienceModel.findOne({
+      user: user._id,
+      _id: id,
+    });
+    if (!mentorExp) {
+      return res.status(400).json({
+        status: false,
+        data: null,
+        message: "Data not found",
+      });
+    }
+    return res.status(200).json({
+      status: true,
+      data: mentorExp,
+      message: "",
+    });
+  }
+
+  static async deleteMentorExp(req, res) {
+    const { id } = req.params;
+    const isExists = await mentorExprienceModel.findOne({ _id: id });
+    if (!isExists) {
+      return res.status(400).json({
+        success: false,
+        data: null,
+        messgae: "Unable to delete",
+      });
+    }
+    await mentorExprienceModel.deleteOne({ _id: id });
+    return res.status(200).json({
+      success: true,
+      data: null,
+      messgae: "Expireance deleted successfully",
+    });
+  }
+
+  static async addMentorExpireance(req, res) {
+    try {
+      const { user, body } = req;
+      const addExpData = new mentorExprienceModel({
+        user: user._id,
+        ...body,
+      });
+      const savedData = await addExpData.save();
+      return res.status(200).json({
+        success: true,
+        data: savedData,
+        messgae: "Expireance add successfully",
+      });
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        data: null,
+        messgae: "Unable to add exp",
+      });
+    }
+  }
+
+  static async updateMentorExpireance(req, res) {
+    try {
+      const { id } = req.params;
+      const { user, body } = req;
+      const isExists = await mentorExprienceModel.findOne({ _id: id });
+      if (!isExists) {
+        return res.status(400).json({
+          success: false,
+          data: null,
+          messgae: "Unable to update",
+        });
+      }
+      const filter = { user: user._id, _id: id };
+      const updateMentorExpireance =
+        await mentorExprienceModel.findOneAndUpdate(filter, body, {
+          new: true,
+        });
+      return res.status(200).json({
+        success: true,
+        data: updateMentorExpireance,
+        messgae: "Expireance update successfully",
+      });
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        data: null,
+        messgae: "Unable to update exp",
       });
     }
   }
