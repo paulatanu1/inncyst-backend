@@ -1,6 +1,7 @@
 const mentorModel = require("./about.model");
 const mentorContactModel = require("./contact.model");
 const mentorExprienceModel = require("./experience.model");
+const mentorSkills = require('./skills.model');
 
 class Mentor {
   static async getMentorAbout(req, res) {
@@ -238,6 +239,14 @@ class Mentor {
         data: null,
         messgae: "Unable to update exp",
       });
+    }
+  }
+
+  static async skillsList(req, res) {
+    try {
+      
+    } catch (error) {
+      
     }
   }
 }

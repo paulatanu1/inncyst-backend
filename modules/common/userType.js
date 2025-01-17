@@ -30,8 +30,9 @@ const userType = {
   JOB: "job",
   EMPLOYER: "employer",
   EXPART: "expart",
-  CANDIDATE: "candidate",
-  INDUSTRY: 'industry'
+  // CANDIDATE: "candidate",
+  INDUSTRY: 'industry',
+  candidate: "candidate"
 };
 
 module.exports = userType;
