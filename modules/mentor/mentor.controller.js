@@ -12,8 +12,8 @@ class Mentor {
         status: true,
       });
       if (!findData) {
-        return res.status(400).json({
-          status: false,
+        return res.status(200).json({
+          status: true,
           data: {},
           message: "Data not found!",
         });
@@ -41,10 +41,10 @@ class Mentor {
 
       if (findData) {
         const filter = { user: user._id };
-        await mentorModel.findOneAndUpdate(filter, body, { new: true });
+        const updatedData = await mentorModel.findOneAndUpdate(filter, body, { new: true });
         return res.status(200).json({
           status: true,
-          data: findData,
+          data: updatedData,
           message: "Profile About update successfully",
         });
       } else {
