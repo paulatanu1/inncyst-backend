@@ -1,13 +1,11 @@
 const { Schema, model } = require("mongoose");
 
-const mentorExprienceSchema = Schema({
+const mentorEducationSchema = Schema({
   user: { type: Schema.Types.ObjectId, ref: "Auth" },
-  title: { type: String, required: true },
+  degree: { type: String, required: true },
   organization: { type: String, required: true },
-  startDate: { type: Date, required: true },
-  endDate: { type: Date },
-  present: { type: Boolean, default: false },
-  aboutRole: { type: String, required: true },
+  studyField: { type: String, required: true },
+  completionYear: { type: Date, required: true },
   status: { type: Boolean, default: true },
   createdAt: {
     type: Date,
@@ -15,4 +13,4 @@ const mentorExprienceSchema = Schema({
   },
 });
 
-module.exports = model("mentorExprience", mentorExprienceSchema);
+module.exports = model("mentorEducation", mentorEducationSchema);

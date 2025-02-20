@@ -1,7 +1,8 @@
 const mentorModel = require("./about.model");
 const mentorContactModel = require("./contact.model");
 const mentorExprienceModel = require("./experience.model");
-const mentorSkills = require('./skills.model');
+const mentorSkills = require("./skills.model");
+const mentorEducation = require("./education.model");
 
 class Mentor {
   static async getMentorAbout(req, res) {
@@ -41,7 +42,9 @@ class Mentor {
 
       if (findData) {
         const filter = { user: user._id };
-        const updatedData = await mentorModel.findOneAndUpdate(filter, body, { new: true });
+        const updatedData = await mentorModel.findOneAndUpdate(filter, body, {
+          new: true,
+        });
         return res.status(200).json({
           status: true,
           data: updatedData,
@@ -244,10 +247,152 @@ class Mentor {
 
   static async skillsList(req, res) {
     try {
-      
+      const skills = await mentorSkills.findOne({ user: req.user._id });
+      if (!skills) {
+        return res.status(200).json({
+          success: true,
+          data: {},
+          messgae: "No skills found!",
+        });
+      }
+      return res.status(200).json({
+        success: true,
+        data: skills,
+        messgae: "",
+      });
     } catch (error) {
-      
+      return res.status(400).json({
+        success: false,
+        data: null,
+        messgae: "Something wrong",
+      });
     }
+  }
+
+  static async skillsAddOrUpdate(req, res) {
+    try {
+      const { user, body } = req;
+      const skills = await mentorSkills.findOne({ user: user._id });
+      if (skills) {
+        const filter = { user: user._id };
+        const updatedSkills = await mentorSkills.findOneAndUpdate(
+          filter,
+          body,
+          { new: true }
+        );
+        return res.status(200).json({
+          success: true,
+          data: updatedSkills,
+          messgae: "Skills updated successfully!",
+        });
+      } else {
+        const saveData = new mentorSkills({
+          user: user._id,
+          ...body,
+        });
+        const saveMentorSkills = await saveData.save();
+        if (saveMentorSkills) {
+          return res.status(200).json({
+            status: true,
+            data: saveMentorSkills,
+            message: "Mentor skills saved successfully",
+          });
+        }
+      }
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        data: null,
+        messgae: "Something wrong",
+      });
+    }
+  }
+
+  static async addEducationMentor(req, res) {
+    try {
+      const { user, body } = req;
+      const savedData = new mentorEducation({
+        user: user._id,
+        ...body,
+      });
+      const educationData = await savedData.save();
+      if (educationData) {
+        return res.status(200).json({
+          success: true,
+          data: educationData,
+          message: "Education saved successfully!",
+        });
+      }
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        data: null,
+        message: "Something wrong!",
+      });
+    }
+  }
+
+  static async getEducationList(req, res) {
+    const { user } = req;
+    const filter = { user: user._id };
+    const mentorEducationList = await mentorEducation.find(filter);
+    return res.status(200).json({
+      success: true,
+      data: mentorEducationList,
+      message: "",
+    });
+  }
+
+  static async getEducationById(req, res) {
+    const { user, params } = req;
+    const filter = { user: user._id, _id: params.id };
+    const mentorEducationdata = await mentorEducation.findOne(filter);
+    return res.status(200).json({
+      success: true,
+      data: mentorEducationdata,
+      message: "",
+    });
+  }
+
+  static async getEducationEdit(req, res) {
+    try {
+      const { user, params, body } = req;
+      const filter = { user: user._id, _id: params.id };
+      const mentorEducationdata = await mentorEducation.findOneAndUpdate(
+        filter,
+        body,
+        { new: true }
+      );
+      return res.status(200).json({
+        success: true,
+        data: mentorEducationdata,
+        message: "",
+      });
+    } catch (error) {
+      return res.status(400).json({
+        success: true,
+        data: null,
+        message: error.message,
+      });
+    }
+  }
+
+  static async deleteMentorEdu(req, res) {
+    const { id } = req.params;
+    const isExists = await mentorEducation.findOne({ _id: id });
+    if (!isExists) {
+      return res.status(400).json({
+        success: false,
+        data: null,
+        messgae: "Unable to delete",
+      });
+    }
+    await mentorEducation.deleteOne({ _id: id });
+    return res.status(200).json({
+      success: true,
+      data: null,
+      messgae: "Education deleted successfully",
+    });
   }
 }
 
