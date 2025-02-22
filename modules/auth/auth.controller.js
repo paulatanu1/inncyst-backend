@@ -161,7 +161,7 @@ const getMe = async (req, res) => {
 const editProfile = async (req, res) => {
   const { user, body } = req;
   let age = 0;
-  if (body.dob) {
+  /* if (body.dob) {
     const currentDate = new Date();
     const birthDate = new Date(body.dob);
     age = currentDate.getFullYear() - birthDate.getFullYear();
@@ -172,7 +172,7 @@ const editProfile = async (req, res) => {
     ) {
       age--;
     }
-  }
+  } */
   body.age = age;
   try {
     const userData = await authModel.findOneAndUpdate({ _id: user._id }, body, {
